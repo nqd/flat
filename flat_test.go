@@ -7,6 +7,13 @@ import (
 )
 
 func TestFlatten(t *testing.T) {
+	// test with different primitives
+	// String: 'good morning',
+	// Number: 1234.99,
+	// Boolean: true,
+	// Date: time.Now()
+	// null: null,
+	// undefined: undefined
 	tests := []struct {
 		given   string
 		want    map[string]interface{}
@@ -14,9 +21,17 @@ func TestFlatten(t *testing.T) {
 	}{
 		{
 			`{"hello":{"world":"good morning"}}`,
-			map[string]interface{}{
-				"hello.world": "good morning",
-			},
+			map[string]interface{}{"hello.world": "good morning"},
+			Options{},
+		},
+		{
+			`{"hello":{"world":1234.99}}`,
+			map[string]interface{}{"hello.world": 1234.99},
+			Options{},
+		},
+		{
+			`{"hello":{"world":null}}`,
+			map[string]interface{}{"hello.world": nil},
 			Options{},
 		},
 	}
