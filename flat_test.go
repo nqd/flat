@@ -24,16 +24,16 @@ func TestFlatten(t *testing.T) {
 			map[string]interface{}{"hello.world": "good morning"},
 			Options{},
 		},
-		{
-			`{"hello":{"world":1234.99}}`,
-			map[string]interface{}{"hello.world": 1234.99},
-			Options{},
-		},
-		{
-			`{"hello":{"world":null}}`,
-			map[string]interface{}{"hello.world": nil},
-			Options{},
-		},
+		// {
+		// 	`{"hello":{"world":1234.99}}`,
+		// 	map[string]interface{}{"hello.world": 1234.99},
+		// 	Options{},
+		// },
+		// {
+		// 	`{"hello":{"world":null}}`,
+		// 	map[string]interface{}{"hello.world": nil},
+		// 	Options{},
+		// },
 	}
 	for i, test := range tests {
 		var given interface{}
