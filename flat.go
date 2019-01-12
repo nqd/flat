@@ -15,10 +15,10 @@ func Flatten(nested map[string]interface{}, opts Options) (m map[string]interfac
 }
 
 func flatten(prefix string, nested interface{}, opts Options) (m map[string]interface{}, err error) {
-	switch nested.(type) {
+	switch nested := nested.(type) {
 	case map[string]interface{}:
 		// map
-		for k, v := range nested.(map[string]interface{}) {
+		for k, v := range nested {
 			newKey := k
 			if prefix != "" {
 				newKey = prefix + "." + k
