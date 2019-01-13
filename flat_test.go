@@ -37,6 +37,35 @@ func TestFlatten(t *testing.T) {
 			map[string]interface{}{"hello.world": nil},
 			Options{},
 		},
+		// nested twice
+		{
+			`{"hello":{"world":{"again":"good morning"}}}`,
+			map[string]interface{}{"hello.world.again": "good morning"},
+			Options{},
+		},
+		// multiple keys
+		{
+			`{
+				"hello": {
+					"lorem": {
+						"ipsum":"again",
+						"dolor":"sit"
+					}
+				},
+				"world": {
+					"lorem": {
+						"ipsum":"again",
+						"dolor":"sit"
+					}
+				}
+			}`,
+			map[string]interface{}{
+				"hello.lorem.ipsum": "again",
+				"hello.lorem.dolor": "sit",
+				"world.lorem.ipsum": "again",
+				"world.lorem.dolor": "sit"},
+			Options{},
+		},
 	}
 	for i, test := range tests {
 		var given interface{}
