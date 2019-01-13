@@ -69,7 +69,7 @@ func TestFlatten(t *testing.T) {
 		// empty object
 		{
 			`{"hello":{"empty":{"nested":{}}}}`,
-			map[string]interface{}{"hello:empty:nested": map[string]interface{}{}},
+			map[string]interface{}{"hello.empty.nested": map[string]interface{}{}},
 			Options{},
 		},
 

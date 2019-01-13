@@ -1,6 +1,9 @@
 package flat
 
-import "log"
+import (
+	"log"
+	"reflect"
+)
 
 type Options struct {
 	Delimiter string
@@ -32,9 +35,14 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					err = fErr
 					return
 				}
-				// merge temp to m
-				for kt, vt := range temp {
-					m[kt] = vt
+				// empty map {}
+				if reflect.DeepEqual(temp, map[string]interface{}{}) {
+					m[newKey] = temp
+				} else {
+					// merge temp to m
+					for kt, vt := range temp {
+						m[kt] = vt
+					}
 				}
 			default:
 				m[newKey] = v
