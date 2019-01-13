@@ -32,16 +32,28 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 			// create new key
 			newKey := k
 			if prefix != "" {
-				newKey = prefix + opts.Delimiter + k
+				newKey = prefix + opts.Delimiter + newKey
 			}
 			switch v.(type) {
-			case map[string]interface{}, []interface{}:
+			case map[string]interface{}:
 				temp, fErr := flatten(newKey, v, opts)
 				if fErr != nil {
 					err = fErr
 					return
 				}
 				update(m, temp, newKey)
+			case []interface{}:
+				if opts.Safe == true {
+					m[newKey] = v
+					continue
+				}
+				temp, fErr := flatten(newKey, v, opts)
+				if fErr != nil {
+					err = fErr
+					return
+				}
+				update(m, temp, newKey)
+
 			default:
 				m[newKey] = v
 			}

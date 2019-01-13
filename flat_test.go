@@ -110,50 +110,50 @@ func TestFlatten(t *testing.T) {
 		// },
 
 		// should parse array when safe = true
-		// {
-		// 	`
-		// 	{
-		// 		"hello": [{
-		// 			"world": {
-		// 				"again": "foo"
-		// 			}
-		// 		}, {
-		// 			"lorem": "ipsum"
-		// 		}],
-		// 		"another": {
-		// 			"nested": [{
-		// 				"array": {
-		// 					"too": "deep"
-		// 				}
-		// 			}]
-		// 		},
-		// 		"lorem": {
-		// 			"ipsum": "whoop"
-		// 		}
-		// 	}
-		// 	`,
-		// 	map[string]interface{}{
-		// 		"hello": []map[string]interface{}{
-		// 			{
-		// 				"world": map[string]interface{}{
-		// 					"again": "foo",
-		// 				},
-		// 			},
-		// 			{
-		// 				"lorem": "ipsum",
-		// 			},
-		// 		},
-		// 		"lorem.ipsum": "whoop",
-		// 		"another.nested": []map[string]interface{}{
-		// 			{
-		// 				"array": map[string]interface{}{
-		// 					"too": "deep",
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// 	Options{},
-		// },
+		{
+			`
+			{
+				"hello": [{
+					"world": {
+						"again": "foo"
+					}
+				}, {
+					"lorem": "ipsum"
+				}],
+				"another": {
+					"nested": [{
+						"array": {
+							"too": "deep"
+						}
+					}]
+				},
+				"lorem": {
+					"ipsum": "whoop"
+				}
+			}
+			`,
+			map[string]interface{}{
+				"hello": []map[string]interface{}{
+					{
+						"world": map[string]interface{}{
+							"again": "foo",
+						},
+					},
+					{
+						"lorem": "ipsum",
+					},
+				},
+				"another.nested": []map[string]interface{}{
+					{
+						"array": map[string]interface{}{
+							"too": "deep",
+						},
+					},
+				},
+				"lorem.ipsum": "whoop",
+			},
+			Options{Safe: true},
+		},
 	}
 	for i, test := range tests {
 		var given interface{}
