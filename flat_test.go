@@ -66,6 +66,19 @@ func TestFlatten(t *testing.T) {
 				"world.lorem.dolor": "sit"},
 			Options{},
 		},
+		// empty object
+		{
+			`{"hello":{"empty":{"nested":{}}}}`,
+			map[string]interface{}{"hello:empty:nested": map[string]interface{}{}},
+			Options{},
+		},
+
+		// custom delimiter
+		// {
+		// 	`{"hello":{"world":{"again":"good morning"}}}`,
+		// 	map[string]interface{}{"hello:world:again": "good morning"},
+		// 	Options{Delimiter: ":"},
+		// },
 	}
 	for i, test := range tests {
 		var given interface{}
