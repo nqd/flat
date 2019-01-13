@@ -72,12 +72,32 @@ func TestFlatten(t *testing.T) {
 			map[string]interface{}{"hello.empty.nested": map[string]interface{}{}},
 			Options{},
 		},
-
 		// custom delimiter
 		// {
 		// 	`{"hello":{"world":{"again":"good morning"}}}`,
 		// 	map[string]interface{}{"hello:world:again": "good morning"},
 		// 	Options{Delimiter: ":"},
+		// },
+		// custom depth
+		// {
+		// 	`{
+		// 		"hello": {
+		// 			"world": {
+		// 				"again": "good morning"
+		// 			}
+		// 		},
+		// 		"lorem": {
+		// 			"ipsum": {
+		// 				"dolor": "good evening"
+		// 			}
+		// 		}
+		// 	}
+		// 	`,
+		// 	map[string]interface{}{
+		// 		"hello:world": map[string]interface{}{"again": "good morning"},
+		// 		"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
+		// 	},
+		// 	Options{MaxDepth: 2},
 		// },
 	}
 	for i, test := range tests {
