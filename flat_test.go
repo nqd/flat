@@ -37,6 +37,15 @@ func TestFlatten(t *testing.T) {
 			map[string]interface{}{"hello.world": nil},
 			Options{},
 		},
+		// slice
+		{
+			`{"hello":{"world":["one","two"]}}`,
+			map[string]interface{}{
+				"hello.world.0": "one",
+				"hello.world.1": "two",
+			},
+			Options{},
+		},
 		// nested twice
 		{
 			`{"hello":{"world":{"again":"good morning"}}}`,
@@ -99,6 +108,52 @@ func TestFlatten(t *testing.T) {
 		// 	},
 		// 	Options{MaxDepth: 2},
 		// },
+
+		// should parse array when safe = true
+		{
+			`
+			{
+				"hello": [{
+					"world": {
+						"again": "foo"
+					}
+				}, {
+					"lorem": "ipsum"
+				}],
+				"another": {
+					"nested": [{
+						"array": {
+							"too": "deep"
+						}
+					}]
+				},
+				"lorem": {
+					"ipsum": "whoop"
+				}
+			}
+			`,
+			map[string]interface{}{
+				"hello": []map[string]interface{}{
+					{
+						"world": map[string]interface{}{
+							"again": "foo",
+						},
+					},
+					{
+						"lorem": "ipsum",
+					},
+				},
+				"lorem.ipsum": "whoop",
+				"another.nested": []map[string]interface{}{
+					{
+						"array": map[string]interface{}{
+							"too": "deep",
+						},
+					},
+				},
+			},
+			Options{},
+		},
 	}
 	for i, test := range tests {
 		var given interface{}
