@@ -13,6 +13,10 @@ type Options struct {
 }
 
 func Flatten(nested map[string]interface{}, opts Options) (m map[string]interface{}, err error) {
+	// construct default value
+	if opts.Delimiter == "" {
+		opts.Delimiter = "."
+	}
 	m, err = flatten("", nested, opts)
 	return
 }
@@ -26,7 +30,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 			// create new key
 			newKey := k
 			if prefix != "" {
-				newKey = prefix + "." + k
+				newKey = prefix + opts.Delimiter + k
 			}
 			switch v.(type) {
 			case map[string]interface{}, []interface{}:

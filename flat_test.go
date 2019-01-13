@@ -73,11 +73,11 @@ func TestFlatten(t *testing.T) {
 			Options{},
 		},
 		// custom delimiter
-		// {
-		// 	`{"hello":{"world":{"again":"good morning"}}}`,
-		// 	map[string]interface{}{"hello:world:again": "good morning"},
-		// 	Options{Delimiter: ":"},
-		// },
+		{
+			`{"hello":{"world":{"again":"good morning"}}}`,
+			map[string]interface{}{"hello:world:again": "good morning"},
+			Options{Delimiter: ":"},
+		},
 		// custom depth
 		// {
 		// 	`{
