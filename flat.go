@@ -41,7 +41,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					err = fErr
 					return
 				}
-				merge(temp, m, newKey)
+				update(m, temp, newKey)
 			default:
 				m[newKey] = v
 			}
@@ -61,7 +61,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					err = fErr
 					return
 				}
-				merge(temp, m, newKey)
+				update(m, temp, newKey)
 			default:
 				m[newKey] = v
 			}
@@ -82,7 +82,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 // from = {}
 // key = "world"
 // key = {"hi": "there", "world": {}}
-func merge(from map[string]interface{}, to map[string]interface{}, key string) {
+func update(to map[string]interface{}, from map[string]interface{}, key string) {
 
 	if reflect.DeepEqual(from, map[string]interface{}{}) {
 		to[key] = from
