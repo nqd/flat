@@ -88,26 +88,26 @@ func TestFlatten(t *testing.T) {
 			Options{Delimiter: ":"},
 		},
 		// custom depth
-		// {
-		// 	`{
-		// 		"hello": {
-		// 			"world": {
-		// 				"again": "good morning"
-		// 			}
-		// 		},
-		// 		"lorem": {
-		// 			"ipsum": {
-		// 				"dolor": "good evening"
-		// 			}
-		// 		}
-		// 	}
-		// 	`,
-		// 	map[string]interface{}{
-		// 		"hello:world": map[string]interface{}{"again": "good morning"},
-		// 		"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
-		// 	},
-		// 	Options{MaxDepth: 2},
-		// },
+		{
+			`{
+				"hello": {
+					"world": {
+						"again": "good morning"
+					}
+				},
+				"lorem": {
+					"ipsum": {
+						"dolor": "good evening"
+					}
+				}
+			}
+			`,
+			map[string]interface{}{
+				"hello.world": map[string]interface{}{"again": "good morning"},
+				"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
+			},
+			Options{MaxDepth: 2},
+		},
 
 		// should parse array when safe = true
 		{
@@ -117,6 +117,7 @@ func TestFlatten(t *testing.T) {
 			},
 			Options{Safe: true},
 		},
+		// todo: why this does not work
 		// {
 		// 	`
 		// 	{
