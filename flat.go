@@ -41,15 +41,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					err = fErr
 					return
 				}
-				// empty map {}
-				if reflect.DeepEqual(temp, map[string]interface{}{}) {
-					m[newKey] = temp
-				} else {
-					// merge temp to m
-					for kt, vt := range temp {
-						m[kt] = vt
-					}
-				}
+				merge(temp, m, newKey)
 			default:
 				m[newKey] = v
 			}
@@ -69,15 +61,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					err = fErr
 					return
 				}
-				// empty map {}
-				if reflect.DeepEqual(temp, map[string]interface{}{}) {
-					m[newKey] = temp
-				} else {
-					// merge temp to m
-					for kt, vt := range temp {
-						m[kt] = vt
-					}
-				}
+				merge(temp, m, newKey)
 			default:
 				m[newKey] = v
 			}
@@ -86,4 +70,26 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 		log.Println("error")
 	}
 	return
+}
+
+// merge is the function that update to map with from and key
+// example: from is a map
+// to = {"hi": "there"}
+// from = {"foo": "bar"}
+// new to = {"hi": "there", "foo": "bar"}
+// example: from is an empty map
+// to = {"hi": "there"}
+// from = {}
+// key = "world"
+// key = {"hi": "there", "world": {}}
+func merge(from map[string]interface{}, to map[string]interface{}, key string) {
+
+	if reflect.DeepEqual(from, map[string]interface{}{}) {
+		to[key] = from
+		return
+	}
+	// merge temp to m
+	for kt, vt := range from {
+		to[kt] = vt
+	}
 }
