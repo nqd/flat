@@ -18,12 +18,15 @@ func Flatten(nested map[string]interface{}, opts Options) (m map[string]interfac
 	if opts.Delimiter == "" {
 		opts.Delimiter = "."
 	}
-	m, err = flatten("", nested, opts)
+	m, err = flatten("", nested, 0, opts)
 	return
 }
 
-func flatten(prefix string, nested interface{}, opts Options) (m map[string]interface{}, err error) {
+func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[string]interface{}, err error) {
 	m = make(map[string]interface{})
+	log.Println("depth", depth)
+	log.Println("prefix", prefix)
+
 	switch nested := nested.(type) {
 	case map[string]interface{}:
 		log.Println("map", nested)
@@ -36,7 +39,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 			}
 			switch v.(type) {
 			case map[string]interface{}:
-				temp, fErr := flatten(newKey, v, opts)
+				temp, fErr := flatten(newKey, v, depth+1, opts)
 				if fErr != nil {
 					err = fErr
 					return
@@ -47,7 +50,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 					m[newKey] = v
 					continue
 				}
-				temp, fErr := flatten(newKey, v, opts)
+				temp, fErr := flatten(newKey, v, depth+1, opts)
 				if fErr != nil {
 					err = fErr
 					return
@@ -68,7 +71,7 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 			}
 			switch v.(type) {
 			case map[string]interface{}, []interface{}:
-				temp, fErr := flatten(newKey, v, opts)
+				temp, fErr := flatten(newKey, v, depth+1, opts)
 				if fErr != nil {
 					err = fErr
 					return
@@ -81,6 +84,10 @@ func flatten(prefix string, nested interface{}, opts Options) (m map[string]inte
 	default:
 		log.Println("error")
 	}
+	return
+}
+
+func f(prefix string, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
 	return
 }
 
