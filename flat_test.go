@@ -233,6 +233,15 @@ func TestFMap(t *testing.T) {
 		options Options
 		want    map[string]interface{}
 	}{
+		// empty object
+		{
+			"hello",
+			`{}`,
+			Options{
+				Delimiter: ".",
+			},
+			map[string]interface{}{"hello": map[string]interface{}{}},
+		},
 		{
 			"hello",
 			`{"world": "good morning"}`,

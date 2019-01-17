@@ -44,7 +44,7 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 					err = fErr
 					return
 				}
-				update(m, temp, newKey)
+				update(m, temp)
 			case []interface{}:
 				if opts.Safe == true {
 					m[newKey] = v
@@ -55,7 +55,7 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 					err = fErr
 					return
 				}
-				update(m, temp, newKey)
+				update(m, temp)
 
 			default:
 				m[newKey] = v
@@ -76,7 +76,7 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 					err = fErr
 					return
 				}
-				update(m, temp, newKey)
+				update(m, temp)
 			default:
 				m[newKey] = v
 			}
@@ -92,6 +92,10 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 
 	switch nested := nested.(type) {
 	case map[string]interface{}:
+		if reflect.DeepEqual(nested, map[string]interface{}{}) {
+			flatmap[prefix] = nested
+			return
+		}
 		for k, v := range nested {
 			// create new key
 			newKey := k
@@ -103,7 +107,8 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 				err = fe
 				return
 			}
-			update(flatmap, fm1, newKey)
+			log.Println("loop fm1", fm1)
+			update(flatmap, fm1)
 		}
 	case []interface{}:
 		for i, v := range nested {
@@ -116,7 +121,7 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 				err = fe
 				return
 			}
-			update(flatmap, fm1, newKey)
+			update(flatmap, fm1)
 		}
 	default:
 		flatmap[prefix] = nested
@@ -134,13 +139,7 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 // from = {}
 // key = "world"
 // key = {"hi": "there", "world": {}}
-func update(to map[string]interface{}, from map[string]interface{}, key string) {
-
-	if reflect.DeepEqual(from, map[string]interface{}{}) {
-		to[key] = from
-		return
-	}
-	// merge temp to m
+func update(to map[string]interface{}, from map[string]interface{}) {
 	for kt, vt := range from {
 		to[kt] = vt
 	}
