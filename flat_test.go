@@ -241,6 +241,34 @@ func TestFMap(t *testing.T) {
 			},
 			map[string]interface{}{"hello.world": "good morning"},
 		},
+		// nested twice
+		{
+			"hello",
+			`{"world":{"again":"good morning"}}`,
+			Options{
+				Delimiter: ".",
+			},
+			map[string]interface{}{"hello.world.again": "good morning"},
+		},
+		// multiple key
+		{
+			"hello",
+			`{
+				"world": {
+					"again": "good morning"
+				},
+				"ipsum": {
+					"dolor": "good evening"
+				}
+			}`,
+			Options{
+				Delimiter: ".",
+			},
+			map[string]interface{}{
+				"hello.world.again": "good morning",
+				"hello.ipsum.dolor": "good evening",
+			},
+		},
 	}
 	for i, test := range tests {
 		var nested interface{}
