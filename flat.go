@@ -88,6 +88,14 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 }
 
 func f(prefix string, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
+	flatmap = make(map[string]interface{})
+
+	switch nested := nested.(type) {
+	case map[string]interface{}:
+	case []interface{}:
+	default:
+		flatmap[prefix] = nested
+	}
 	return
 }
 

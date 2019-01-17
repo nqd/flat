@@ -179,10 +179,10 @@ import (
 // 	}
 // }
 
-func TestF(t *testing.T) {
+func TestFPrimitive(t *testing.T) {
 	tests := []struct {
 		prefix  string
-		nested  string
+		nested  interface{}
 		options Options
 		want    map[string]interface{}
 	}{
@@ -191,6 +191,48 @@ func TestF(t *testing.T) {
 		// Number: 1234.99,
 		// Boolean: true,
 		// null: null,
+		{
+			"hello",
+			"world",
+			Options{},
+			map[string]interface{}{"hello": "world"},
+		},
+		{
+			"hello",
+			1234.49,
+			Options{},
+			map[string]interface{}{"hello": 1234.49},
+		},
+		{
+			"hello",
+			true,
+			Options{},
+			map[string]interface{}{"hello": true},
+		},
+		{
+			"hello",
+			nil,
+			Options{},
+			map[string]interface{}{"hello": nil},
+		},
+	}
+	for i, test := range tests {
+		got, err := f(test.prefix, test.nested, test.options)
+		if err != nil {
+			t.Errorf("%d: failed to flatten: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
+		}
+	}
+}
+func TestF(t *testing.T) {
+	tests := []struct {
+		prefix  string
+		nested  string
+		options Options
+		want    map[string]interface{}
+	}{
 		{
 			"hello",
 			`{"world": "good morning"}`,
