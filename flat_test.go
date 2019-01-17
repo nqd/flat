@@ -233,7 +233,7 @@ func TestFMap(t *testing.T) {
 		options Options
 		want    map[string]interface{}
 	}{
-		// empty object
+		// empty map
 		{
 			"hello",
 			`{}`,
@@ -249,6 +249,14 @@ func TestFMap(t *testing.T) {
 				Delimiter: ".",
 			},
 			map[string]interface{}{"hello.world": "good morning"},
+		},
+		{
+			"",
+			`{"world": "good morning"}`,
+			Options{
+				Delimiter: ".",
+			},
+			map[string]interface{}{"world": "good morning"},
 		},
 		// nested twice
 		{
@@ -278,6 +286,15 @@ func TestFMap(t *testing.T) {
 				"hello.ipsum.dolor": "good evening",
 			},
 		},
+		// empty slice
+		// {
+		// 	"hello",
+		// 	`[]`,
+		// 	Options{
+		// 		Delimiter: ".",
+		// 	},
+		// 	map[string]interface{}{"hello": map[string]interface{}{}},
+		// },
 		// slice
 		{
 			"hello",
@@ -288,6 +305,39 @@ func TestFMap(t *testing.T) {
 			map[string]interface{}{
 				"hello.world.0": "one",
 				"hello.world.1": "two",
+			},
+		},
+		// custom delimiter
+		{
+			"hello",
+			`{"world":{"again":"good morning"}}`,
+			Options{
+				Delimiter: ":",
+			},
+			map[string]interface{}{"hello:world:again": "good morning"},
+		},
+		// custom depth
+		{
+			"",
+			`{
+				"hello": {
+					"world": {
+						"again": "good morning"
+					}
+				},
+				"lorem": {
+					"ipsum": {
+						"dolor": "good evening"
+					}
+				}
+			}
+			`,
+			Options{
+				MaxDepth: 2,
+			},
+			map[string]interface{}{
+				"hello.world": map[string]interface{}{"again": "good morning"},
+				"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
 			},
 		},
 	}
