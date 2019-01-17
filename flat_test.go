@@ -194,30 +194,38 @@ func TestFPrimitive(t *testing.T) {
 		{
 			"hello",
 			"world",
-			Options{},
+			Options{
+				MaxDepth: 20,
+			},
 			map[string]interface{}{"hello": "world"},
 		},
 		{
 			"hello",
 			1234.49,
-			Options{},
+			Options{
+				MaxDepth: 20,
+			},
 			map[string]interface{}{"hello": 1234.49},
 		},
 		{
 			"hello",
 			true,
-			Options{},
+			Options{
+				MaxDepth: 20,
+			},
 			map[string]interface{}{"hello": true},
 		},
 		{
 			"hello",
 			nil,
-			Options{},
+			Options{
+				MaxDepth: 20,
+			},
 			map[string]interface{}{"hello": nil},
 		},
 	}
 	for i, test := range tests {
-		got, err := f(test.prefix, test.nested, test.options)
+		got, err := f(test.prefix, 0, test.nested, test.options)
 		if err != nil {
 			t.Errorf("%d: failed to flatten: %v", i+1, err)
 		}
@@ -239,6 +247,7 @@ func TestFMap(t *testing.T) {
 			`{}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{"hello": map[string]interface{}{}},
 		},
@@ -247,6 +256,7 @@ func TestFMap(t *testing.T) {
 			`{"world": "good morning"}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{"hello.world": "good morning"},
 		},
@@ -255,6 +265,7 @@ func TestFMap(t *testing.T) {
 			`{"world": "good morning"}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{"world": "good morning"},
 		},
@@ -264,6 +275,7 @@ func TestFMap(t *testing.T) {
 			`{"world":{"again":"good morning"}}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{"hello.world.again": "good morning"},
 		},
@@ -280,6 +292,7 @@ func TestFMap(t *testing.T) {
 			}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{
 				"hello.world.again": "good morning",
@@ -301,6 +314,7 @@ func TestFMap(t *testing.T) {
 			`{"world":["one","two"]}`,
 			Options{
 				Delimiter: ".",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{
 				"hello.world.0": "one",
@@ -313,6 +327,7 @@ func TestFMap(t *testing.T) {
 			`{"world":{"again":"good morning"}}`,
 			Options{
 				Delimiter: ":",
+				MaxDepth:  20,
 			},
 			map[string]interface{}{"hello:world:again": "good morning"},
 		},
@@ -333,7 +348,8 @@ func TestFMap(t *testing.T) {
 			}
 			`,
 			Options{
-				MaxDepth: 2,
+				Delimiter: ".",
+				MaxDepth:  2,
 			},
 			map[string]interface{}{
 				"hello.world": map[string]interface{}{"again": "good morning"},
@@ -347,7 +363,7 @@ func TestFMap(t *testing.T) {
 		if err != nil {
 			t.Errorf("%d: failed to unmarshal test: %v", i+1, err)
 		}
-		got, err := f(test.prefix, nested, test.options)
+		got, err := f(test.prefix, 0, nested, test.options)
 		if err != nil {
 			t.Errorf("%d: failed to flatten: %v", i+1, err)
 		}

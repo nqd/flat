@@ -87,8 +87,13 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 	return
 }
 
-func f(prefix string, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
+func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
 	flatmap = make(map[string]interface{})
+
+	if depth >= opts.MaxDepth {
+		log.Println("max depth")
+		// flatmap = nested.(map[string]interface{})
+	}
 
 	switch nested := nested.(type) {
 	case map[string]interface{}:
@@ -102,12 +107,11 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 			if prefix != "" {
 				newKey = prefix + opts.Delimiter + newKey
 			}
-			fm1, fe := f(newKey, v, opts)
+			fm1, fe := f(newKey, depth+1, v, opts)
 			if fe != nil {
 				err = fe
 				return
 			}
-			log.Println("loop fm1", fm1)
 			update(flatmap, fm1)
 		}
 	case []interface{}:
@@ -116,7 +120,7 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 			if prefix != "" {
 				newKey = prefix + opts.Delimiter + newKey
 			}
-			fm1, fe := f(newKey, v, opts)
+			fm1, fe := f(newKey, depth+1, v, opts)
 			if fe != nil {
 				err = fe
 				return
