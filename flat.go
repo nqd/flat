@@ -90,13 +90,12 @@ func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[
 func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
 	flatmap = make(map[string]interface{})
 
-	if depth >= opts.MaxDepth {
-		log.Println("max depth")
-		// flatmap = nested.(map[string]interface{})
-	}
-
 	switch nested := nested.(type) {
 	case map[string]interface{}:
+		if depth >= opts.MaxDepth {
+			flatmap[prefix] = nested
+			return
+		}
 		if reflect.DeepEqual(nested, map[string]interface{}{}) {
 			flatmap[prefix] = nested
 			return
