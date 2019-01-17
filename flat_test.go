@@ -269,6 +269,18 @@ func TestFMap(t *testing.T) {
 				"hello.ipsum.dolor": "good evening",
 			},
 		},
+		// slice
+		{
+			"hello",
+			`{"world":["one","two"]}`,
+			Options{
+				Delimiter: ".",
+			},
+			map[string]interface{}{
+				"hello.world.0": "one",
+				"hello.world.1": "two",
+			},
+		},
 	}
 	for i, test := range tests {
 		var nested interface{}

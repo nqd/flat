@@ -106,6 +106,18 @@ func f(prefix string, nested interface{}, opts Options) (flatmap map[string]inte
 			update(flatmap, fm1, newKey)
 		}
 	case []interface{}:
+		for i, v := range nested {
+			newKey := strconv.Itoa(i)
+			if prefix != "" {
+				newKey = prefix + opts.Delimiter + newKey
+			}
+			fm1, fe := f(newKey, v, opts)
+			if fe != nil {
+				err = fe
+				return
+			}
+			update(flatmap, fm1, newKey)
+		}
 	default:
 		flatmap[prefix] = nested
 	}
