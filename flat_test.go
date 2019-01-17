@@ -226,7 +226,7 @@ func TestFPrimitive(t *testing.T) {
 		}
 	}
 }
-func TestF(t *testing.T) {
+func TestFMap(t *testing.T) {
 	tests := []struct {
 		prefix  string
 		nested  string
@@ -236,7 +236,9 @@ func TestF(t *testing.T) {
 		{
 			"hello",
 			`{"world": "good morning"}`,
-			Options{},
+			Options{
+				Delimiter: ".",
+			},
 			map[string]interface{}{"hello.world": "good morning"},
 		},
 	}
