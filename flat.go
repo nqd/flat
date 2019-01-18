@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+// Options the flatten options
+// by default
+// Demiliter: "."
+// Safe: false
+// MaxDepth: 20
 type Options struct {
 	Delimiter string
 	Safe      bool
@@ -12,6 +17,8 @@ type Options struct {
 	MaxDepth  int
 }
 
+// Flatten the map, it returns a map one level deep
+// regardless of how nested the original map was
 func Flatten(nested map[string]interface{}, opts Options) (m map[string]interface{}, err error) {
 	// construct default value
 	if opts.Delimiter == "" {
