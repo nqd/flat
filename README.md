@@ -27,3 +27,13 @@ out, err := flat.Flatten(in, flat.Options{})
 //     "z.1": 1.4567,
 // }
 ```
+
+### Unflatten
+
+## Options
+
+### Delimiter
+
+### Safe
+
+### MaxDepth
