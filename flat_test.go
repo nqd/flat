@@ -356,6 +356,19 @@ func TestFMap(t *testing.T) {
 				"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
 			},
 		},
+		// safe
+		{
+			"hello",
+			`{"world":["one","two"]}`,
+			Options{
+				Delimiter: ".",
+				MaxDepth:  20,
+				Safe:      true,
+			},
+			map[string]interface{}{
+				"hello.world": []interface{}{"one", "two"},
+			},
+		},
 	}
 	for i, test := range tests {
 		var nested interface{}
