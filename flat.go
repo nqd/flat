@@ -1,7 +1,6 @@
 package flat
 
 import (
-	"log"
 	"reflect"
 	"strconv"
 )
@@ -18,72 +17,12 @@ func Flatten(nested map[string]interface{}, opts Options) (m map[string]interfac
 	if opts.Delimiter == "" {
 		opts.Delimiter = "."
 	}
-	m, err = flatten("", nested, 0, opts)
-	return
-}
 
-func flatten(prefix string, nested interface{}, depth int, opts Options) (m map[string]interface{}, err error) {
-	m = make(map[string]interface{})
-	log.Println("depth", depth)
-	log.Println("prefix", prefix)
-
-	switch nested := nested.(type) {
-	case map[string]interface{}:
-		log.Println("map", nested)
-		// map
-		for k, v := range nested {
-			// create new key
-			newKey := k
-			if prefix != "" {
-				newKey = prefix + opts.Delimiter + newKey
-			}
-			switch v.(type) {
-			case map[string]interface{}:
-				temp, fErr := flatten(newKey, v, depth+1, opts)
-				if fErr != nil {
-					err = fErr
-					return
-				}
-				update(m, temp)
-			case []interface{}:
-				if opts.Safe == true {
-					m[newKey] = v
-					continue
-				}
-				temp, fErr := flatten(newKey, v, depth+1, opts)
-				if fErr != nil {
-					err = fErr
-					return
-				}
-				update(m, temp)
-
-			default:
-				m[newKey] = v
-			}
-		}
-	case []interface{}:
-		log.Println("slice", nested)
-		// slice
-		for i, v := range nested {
-			newKey := strconv.Itoa(i)
-			if prefix != "" {
-				newKey = prefix + opts.Delimiter + newKey
-			}
-			switch v.(type) {
-			case map[string]interface{}, []interface{}:
-				temp, fErr := flatten(newKey, v, depth+1, opts)
-				if fErr != nil {
-					err = fErr
-					return
-				}
-				update(m, temp)
-			default:
-				m[newKey] = v
-			}
-		}
-	default:
-		log.Println("error")
+	if opts.MaxDepth == 0 {
+		opts.MaxDepth = 20
 	}
+	m, err = f("", 0, nested, opts)
+
 	return
 }
 
