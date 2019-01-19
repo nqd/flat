@@ -407,6 +407,44 @@ func TestUnflatten(t *testing.T) {
 			Options{},
 			map[string]interface{}{"hello": true},
 		},
+		// nested twice
+		{
+			map[string]interface{}{"hello.world.again": "good morning"},
+			Options{},
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"world": map[string]interface{}{
+						"again": "good morning",
+					},
+				},
+			},
+		},
+		// multiple keys
+		{
+			map[string]interface{}{
+				"hello.lorem.ipsum": "again",
+				"hello.lorem.dolor": "sit",
+				"world.lorem.ipsum": "again",
+				"world.lorem.dolor": "sit",
+				"world":             map[string]interface{}{"greet": "hello"},
+			},
+			Options{},
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"lorem": map[string]interface{}{
+						"ipsum": "again",
+						"dolor": "sit",
+					},
+				},
+				"world": map[string]interface{}{
+					"greet": "hello",
+					"lorem": map[string]interface{}{
+						"ipsum": "again",
+						"dolor": "sit",
+					},
+				},
+			},
+		},
 	}
 	for i, test := range tests {
 		got, err := Unflatten(test.flat, test.options)

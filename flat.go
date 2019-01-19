@@ -1,7 +1,6 @@
 package flat
 
 import (
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -112,21 +111,21 @@ func unflatten(flat map[string]interface{}, opts Options) (nested map[string]int
 	nested = make(map[string]interface{})
 
 	for k, v := range flat {
-		nested = uf(k, v, opts)
+		nested = uf(k, v, opts).(map[string]interface{})
 	}
 
 	return
 }
 
-func uf(k string, v interface{}, opts Options) (n map[string]interface{}) {
-	log.Println("k", k)
-	n = make(map[string]interface{})
+func uf(k string, v interface{}, opts Options) (n interface{}) {
+	n = v
 
 	keys := strings.Split(k, opts.Delimiter)
-	log.Println("keys", keys)
 
 	for i := len(keys) - 1; i >= 0; i-- {
-		n[keys[i]] = v
+		temp := make(map[string]interface{})
+		temp[keys[i]] = n
+		n = temp
 	}
 
 	return
