@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/imdario/mergo"
 )
 
 // Options the flatten options
@@ -111,7 +113,8 @@ func unflatten(flat map[string]interface{}, opts Options) (nested map[string]int
 	nested = make(map[string]interface{})
 
 	for k, v := range flat {
-		nested = uf(k, v, opts).(map[string]interface{})
+		temp := uf(k, v, opts).(map[string]interface{})
+		mergo.Merge(&nested, temp)
 	}
 
 	return
