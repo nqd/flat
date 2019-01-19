@@ -445,6 +445,38 @@ func TestUnflatten(t *testing.T) {
 				},
 			},
 		},
+		// nested objects do not clobber each other
+		{
+			map[string]interface{}{
+				"foo.bar": map[string]interface{}{"t": 123},
+				"foo":     map[string]interface{}{"k": 456},
+			},
+			Options{},
+			map[string]interface{}{
+				"foo": map[string]interface{}{
+					"bar": map[string]interface{}{
+						"t": 123,
+					},
+					"k": 456,
+				},
+			},
+		},
+		// custom delimiter
+		{
+			map[string]interface{}{
+				"hello world again": "good morning",
+			},
+			Options{
+				Delimiter: " ",
+			},
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"world": map[string]interface{}{
+						"again": "good morning",
+					},
+				},
+			},
+		},
 	}
 	for i, test := range tests {
 		got, err := Unflatten(test.flat, test.options)
