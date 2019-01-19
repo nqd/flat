@@ -385,3 +385,36 @@ func TestFMap(t *testing.T) {
 		}
 	}
 }
+
+func TestUnflatten(t *testing.T) {
+	tests := []struct {
+		flat    map[string]interface{}
+		options Options
+		want    map[string]interface{}
+	}{
+		{
+			map[string]interface{}{"hello": "world"},
+			Options{},
+			map[string]interface{}{"hello": "world"},
+		},
+		{
+			map[string]interface{}{"hello": 1234.56},
+			Options{},
+			map[string]interface{}{"hello": 1234.56},
+		},
+		{
+			map[string]interface{}{"hello": true},
+			Options{},
+			map[string]interface{}{"hello": true},
+		},
+	}
+	for i, test := range tests {
+		got, err := Unflatten(test.flat, test.options)
+		if err != nil {
+			t.Errorf("%d: failed to unflatten: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
+		}
+	}
+}
