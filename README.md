@@ -18,7 +18,7 @@ in := map[string]interface{}{
    "z": [2, 1.4567],
 }
 
-out, err := flat.Flatten(in, flat.Options{})
+out, err := flat.Flatten(in, nil)
 // out = map[string]interface{}{
 //     "a": "b",
 //     "c.d": "e",
@@ -29,6 +29,23 @@ out, err := flat.Flatten(in, flat.Options{})
 ```
 
 ### Unflatten
+
+```{go}
+in := map[string]interface{}{
+    "foo.bar": map[string]interface{}{"t": 123},
+    "foo":     map[string]interface{}{"k": 456},
+}
+
+out, err := flat.Unflatten(in, nil)
+// out = map[string]interface{}{
+//     "foo": map[string]interface{}{
+//         "bar": map[string]interface{}{
+//             "t": 123,
+//         },
+//         "k": 456,
+//     },
+// }
+```
 
 ## Options
 
