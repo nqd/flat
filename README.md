@@ -104,6 +104,8 @@ out, err := flat.Flatten(in, &flat.Options{
 
 MaxDepth is the maximum number of nested objects to flatten. MaxDepth can be any integer number. MaxDepth = 0 means no limit.
 
+Default MaxDepth value is `0`.
+
 ```{go}
 in := map[string]interface{}{
     "hello": map[string]interface{}{
