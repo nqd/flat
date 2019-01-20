@@ -8,6 +8,8 @@ This work inspired by the [nodejs flat package](https://github.com/hughsk/flat/)
 
 ### Flatten
 
+Flatten given map, returns a map one level deep.
+
 ```{go}
 in := map[string]interface{}{
    "a": "b",
@@ -30,6 +32,8 @@ out, err := flat.Flatten(in, nil)
 
 ### Unflatten
 
+Since there is flatten, flat should have unfatten.
+
 ```{go}
 in := map[string]interface{}{
     "foo.bar": map[string]interface{}{"t": 123},
@@ -50,6 +54,26 @@ out, err := flat.Unflatten(in, nil)
 ## Options
 
 ### Delimiter
+
+Use a custom delimiter for flattening/unflattening your objects. Default value is `.`.
+
+```{go}
+in := map[string]interface{}{
+   "hello": map[string]interface{}{
+       "world": map[string]interface{}{
+           "again": "good morning",
+        }
+   },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ":",
+    MaxDepth:  20,
+})
+// out = map[string]interface{}{
+//     "hello:world:again": "good morning",
+// }
+```
 
 ### Safe
 
