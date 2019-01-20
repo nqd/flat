@@ -26,7 +26,6 @@ func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interfa
 	if opts == nil {
 		opts = &Options{
 			Delimiter: ".",
-			MaxDepth:  20,
 		}
 	}
 

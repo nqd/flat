@@ -8,14 +8,16 @@ This work inspired by the [nodejs flat package](https://github.com/hughsk/flat/)
 
 ### Flatten
 
+Flatten given map, returns a map one level deep.
+
 ```{go}
 in := map[string]interface{}{
-   "a": "b",
-   "c": map[string]interface{}{
-       "d": "e",
-       "f": "g",
-   },
-   "z": [2, 1.4567],
+    "a": "b",
+    "c": map[string]interface{}{
+        "d": "e",
+        "f": "g",
+    },
+    "z": [2, 1.4567],
 }
 
 out, err := flat.Flatten(in, nil)
@@ -29,6 +31,8 @@ out, err := flat.Flatten(in, nil)
 ```
 
 ### Unflatten
+
+Since there is flatten, flat should have unfatten.
 
 ```{go}
 in := map[string]interface{}{
@@ -51,6 +55,76 @@ out, err := flat.Unflatten(in, nil)
 
 ### Delimiter
 
+Use a custom delimiter for flattening/unflattening your objects. Default value is `.`.
+
+```{go}
+in := map[string]interface{}{
+   "hello": map[string]interface{}{
+       "world": map[string]interface{}{
+           "again": "good morning",
+        }
+    },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ":",
+})
+// out = map[string]interface{}{
+//     "hello:world:again": "good morning",
+// }
+```
+
 ### Safe
 
+<!-- When Safe is true, both fatten and unflatten will preserve arrays and their contents. Default Safe value is `false`. -->
+When Safe is true, fatten will preserve arrays and their contents. Default Safe value is `false`.
+
+```{go}
+in := map[string]interface{}{
+    "hello": map[string]interface{}{
+        "world": []interface{}{
+            "one",
+            "two",
+        }
+   },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ".",
+    Safe:      true,
+})
+// out = map[string]interface{}{
+//     "hello.world": []interface{}{"one", "two"},
+// }
+```
+
+<!-- Example of Unflatten goes here -->
+
 ### MaxDepth
+
+MaxDepth is the maximum number of nested objects to flatten. MaxDepth can be any integer number. MaxDepth = 0 means no limit.
+
+Default MaxDepth value is `0`.
+
+```{go}
+in := map[string]interface{}{
+    "hello": map[string]interface{}{
+        "world": []interface{}{
+            "again": "good morning",
+        }
+   },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ".",
+    MaxDepth:  2,
+})
+// out = map[string]interface{}{
+//     "hello.world": map[string]interface{}{"again": "good morning"},
+// }
+```
+
+## Todos
+
+- [ ] Safe option for Unflatten
+- [ ] Overwrite
