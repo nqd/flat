@@ -94,11 +94,33 @@ out, err := flat.Flatten(in, &flat.Options{
     Safe:      true,
 })
 // out = map[string]interface{}{
-//     "hello:world": []interface{}{"one", "two"},
+//     "hello.world": []interface{}{"one", "two"},
 // }
 ```
 
+<!-- Example of Unflatten goes here -->
+
 ### MaxDepth
+
+MaxDepth is the maximum number of nested objects to flatten. MaxDepth can be any integer number. MaxDepth = 0 means no limit.
+
+```{go}
+in := map[string]interface{}{
+    "hello": map[string]interface{}{
+        "world": []interface{}{
+            "again": "good morning",
+        }
+   },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ".",
+    MaxDepth:  2,
+})
+// out = map[string]interface{}{
+//     "hello:world": map[string]interface{}{"again": "good morning"},
+// }
+```
 
 ## Todos
 
