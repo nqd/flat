@@ -12,12 +12,12 @@ Flatten given map, returns a map one level deep.
 
 ```{go}
 in := map[string]interface{}{
-   "a": "b",
-   "c": map[string]interface{}{
-       "d": "e",
-       "f": "g",
-   },
-   "z": [2, 1.4567],
+    "a": "b",
+    "c": map[string]interface{}{
+        "d": "e",
+        "f": "g",
+    },
+    "z": [2, 1.4567],
 }
 
 out, err := flat.Flatten(in, nil)
@@ -63,12 +63,11 @@ in := map[string]interface{}{
        "world": map[string]interface{}{
            "again": "good morning",
         }
-   },
+    },
 }
 
 out, err := flat.Flatten(in, &flat.Options{
     Delimiter: ":",
-    MaxDepth:  20,
 })
 // out = map[string]interface{}{
 //     "hello:world:again": "good morning",
@@ -77,4 +76,30 @@ out, err := flat.Flatten(in, &flat.Options{
 
 ### Safe
 
+<!-- When Safe is true, both fatten and unflatten will preserve arrays and their contents. Default Safe value is `false`. -->
+When Safe is true, fatten will preserve arrays and their contents. Default Safe value is `false`.
+
+```{go}
+in := map[string]interface{}{
+    "hello": map[string]interface{}{
+        "world": []interface{}{
+            "one",
+            "two",
+        }
+   },
+}
+
+out, err := flat.Flatten(in, &flat.Options{
+    Delimiter: ".",
+    Safe:      true,
+})
+// out = map[string]interface{}{
+//     "hello:world": []interface{}{"one", "two"},
+// }
+```
+
 ### MaxDepth
+
+## Todos
+
+- [ ] Safe option for Unflatten
