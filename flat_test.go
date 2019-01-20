@@ -389,28 +389,28 @@ func TestFMap(t *testing.T) {
 func TestUnflatten(t *testing.T) {
 	tests := []struct {
 		flat    map[string]interface{}
-		options Options
+		options *Options
 		want    map[string]interface{}
 	}{
 		{
 			map[string]interface{}{"hello": "world"},
-			Options{},
+			nil,
 			map[string]interface{}{"hello": "world"},
 		},
 		{
 			map[string]interface{}{"hello": 1234.56},
-			Options{},
+			nil,
 			map[string]interface{}{"hello": 1234.56},
 		},
 		{
 			map[string]interface{}{"hello": true},
-			Options{},
+			nil,
 			map[string]interface{}{"hello": true},
 		},
 		// nested twice
 		{
 			map[string]interface{}{"hello.world.again": "good morning"},
-			Options{},
+			nil,
 			map[string]interface{}{
 				"hello": map[string]interface{}{
 					"world": map[string]interface{}{
@@ -428,7 +428,7 @@ func TestUnflatten(t *testing.T) {
 				"world.lorem.dolor": "sit",
 				"world":             map[string]interface{}{"greet": "hello"},
 			},
-			Options{},
+			nil,
 			map[string]interface{}{
 				"hello": map[string]interface{}{
 					"lorem": map[string]interface{}{
@@ -451,7 +451,7 @@ func TestUnflatten(t *testing.T) {
 				"foo.bar": map[string]interface{}{"t": 123},
 				"foo":     map[string]interface{}{"k": 456},
 			},
-			Options{},
+			nil,
 			map[string]interface{}{
 				"foo": map[string]interface{}{
 					"bar": map[string]interface{}{
@@ -466,7 +466,7 @@ func TestUnflatten(t *testing.T) {
 			map[string]interface{}{
 				"hello world again": "good morning",
 			},
-			Options{
+			&Options{
 				Delimiter: " ",
 			},
 			map[string]interface{}{
@@ -477,6 +477,38 @@ func TestUnflatten(t *testing.T) {
 				},
 			},
 		},
+		// do not overwrite
+		{
+			map[string]interface{}{
+				"travis":           "true",
+				"travis_build_dir": "/home/foo",
+			},
+			&Options{
+				Delimiter: "_",
+			},
+			map[string]interface{}{
+				"travis": "true",
+			},
+		},
+		// todo
+		// overwrite true
+		// {
+		// 	map[string]interface{}{
+		// 		"travis":           "true",
+		// 		"travis_build_dir": "/home/foo",
+		// 	},
+		// 	Options{
+		// 		Delimiter: "_",
+		// 		Overwrite: true,
+		// 	},
+		// 	map[string]interface{}{
+		// 		"travis": map[string]interface{}{
+		// 			"build": map[string]interface{}{
+		// 				"dir": "/home/foo",
+		// 			},
+		// 		},
+		// 	},
+		// },
 	}
 	for i, test := range tests {
 		got, err := Unflatten(test.flat, test.options)

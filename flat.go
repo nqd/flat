@@ -101,26 +101,31 @@ func update(to map[string]interface{}, from map[string]interface{}) {
 	}
 }
 
-func Unflatten(flat map[string]interface{}, opts Options) (nested map[string]interface{}, err error) {
-	if opts.Delimiter == "" {
-		opts.Delimiter = "."
+func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
+	if opts == nil {
+		opts = &Options{
+			Delimiter: ".",
+		}
 	}
 	nested, err = unflatten(flat, opts)
 	return
 }
 
-func unflatten(flat map[string]interface{}, opts Options) (nested map[string]interface{}, err error) {
+func unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
 	nested = make(map[string]interface{})
 
 	for k, v := range flat {
 		temp := uf(k, v, opts).(map[string]interface{})
-		mergo.Merge(&nested, temp)
+		err = mergo.Merge(&nested, temp)
+		if err != nil {
+			return
+		}
 	}
 
 	return
 }
 
-func uf(k string, v interface{}, opts Options) (n interface{}) {
+func uf(k string, v interface{}, opts *Options) (n interface{}) {
 	n = v
 
 	keys := strings.Split(k, opts.Delimiter)
