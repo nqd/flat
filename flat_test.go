@@ -140,17 +140,7 @@ func TestFlatten(t *testing.T) {
 			},
 			Options{MaxDepth: 2},
 		},
-
-		// slice, by default safe = false
-		{
-			`{"hello":{"world":["one","two"]}}`,
-			map[string]interface{}{
-				"hello.world.0": "one",
-				"hello.world.1": "two",
-			},
-			Options{},
-		},
-		// should parse array when safe = true
+		// custom safe = true
 		{
 			`{"hello":{"world":["one","two"]}}`,
 			map[string]interface{}{
