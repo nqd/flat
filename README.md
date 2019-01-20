@@ -125,3 +125,4 @@ out, err := flat.Flatten(in, &flat.Options{
 ## Todos
 
 - [ ] Safe option for Unflatten
+- [ ] Overwrite
