@@ -22,26 +22,25 @@ type Options struct {
 
 // Flatten the map, it returns a map one level deep
 // regardless of how nested the original map was
-func Flatten(nested map[string]interface{}, opts Options) (m map[string]interface{}, err error) {
-	// construct default value
-	if opts.Delimiter == "" {
-		opts.Delimiter = "."
+func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interface{}, err error) {
+	if opts == nil {
+		opts = &Options{
+			Delimiter: ".",
+			MaxDepth:  20,
+		}
 	}
 
-	if opts.MaxDepth == 0 {
-		opts.MaxDepth = 20
-	}
-	m, err = f("", 0, nested, opts)
+	m, err = flatten("", 0, nested, opts)
 
 	return
 }
 
-func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[string]interface{}, err error) {
+func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatmap map[string]interface{}, err error) {
 	flatmap = make(map[string]interface{})
 
 	switch nested := nested.(type) {
 	case map[string]interface{}:
-		if depth >= opts.MaxDepth {
+		if opts.MaxDepth != 0 && depth >= opts.MaxDepth {
 			flatmap[prefix] = nested
 			return
 		}
@@ -55,7 +54,7 @@ func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[
 			if prefix != "" {
 				newKey = prefix + opts.Delimiter + newKey
 			}
-			fm1, fe := f(newKey, depth+1, v, opts)
+			fm1, fe := flatten(newKey, depth+1, v, opts)
 			if fe != nil {
 				err = fe
 				return
@@ -76,7 +75,7 @@ func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[
 			if prefix != "" {
 				newKey = prefix + opts.Delimiter + newKey
 			}
-			fm1, fe := f(newKey, depth+1, v, opts)
+			fm1, fe := flatten(newKey, depth+1, v, opts)
 			if fe != nil {
 				err = fe
 				return

@@ -9,8 +9,8 @@ import (
 func TestFlatten(t *testing.T) {
 	tests := []struct {
 		given   string
+		options *Options
 		want    map[string]interface{}
-		options Options
 	}{
 		// test with different primitives
 		// String: 'world',
@@ -19,70 +19,70 @@ func TestFlatten(t *testing.T) {
 		// null: null,
 		{
 			`{"hello": "world"}`,
+			nil,
 			map[string]interface{}{"hello": "world"},
-			Options{},
 		},
 		{
 			`{"hello": 1234.99}`,
+			nil,
 			map[string]interface{}{"hello": 1234.99},
-			Options{},
 		},
 		{
 			`{"hello": true}`,
+			nil,
 			map[string]interface{}{"hello": true},
-			Options{},
 		},
 		{
 			`{"hello": null}`,
+			nil,
 			map[string]interface{}{"hello": nil},
-			Options{},
 		},
 		// nested once
 		{
 			`{"hello":{}}`,
+			nil,
 			map[string]interface{}{"hello": map[string]interface{}{}},
-			Options{},
 		},
 		{
 			`{"hello":{"world":"good morning"}}`,
+			nil,
 			map[string]interface{}{"hello.world": "good morning"},
-			Options{},
 		},
 		{
 			`{"hello":{"world":1234.99}}`,
+			nil,
 			map[string]interface{}{"hello.world": 1234.99},
-			Options{},
 		},
 		{
 			`{"hello":{"world":true}}`,
+			nil,
 			map[string]interface{}{"hello.world": true},
-			Options{},
 		},
 		{
 			`{"hello":{"world":null}}`,
+			nil,
 			map[string]interface{}{"hello.world": nil},
-			Options{},
 		},
 		// empty slice
 		{
 			`{"hello":{"world":[]}}`,
+			nil,
 			map[string]interface{}{"hello.world": []interface{}{}},
-			Options{},
 		},
 		// slice
 		{
 			`{"hello":{"world":["one","two"]}}`,
+			nil,
 			map[string]interface{}{
 				"hello.world.0": "one",
 				"hello.world.1": "two",
 			},
-			Options{},
 		},
 		// nested twice
 		{
 			`{"hello":{"world":{"again":"good morning"}}}`,
+			nil,
 			map[string]interface{}{"hello.world.again": "good morning"},
-			Options{},
 		},
 		// multiple keys
 		{
@@ -100,24 +100,27 @@ func TestFlatten(t *testing.T) {
 					}
 				}
 			}`,
+			nil,
 			map[string]interface{}{
 				"hello.lorem.ipsum": "again",
 				"hello.lorem.dolor": "sit",
 				"world.lorem.ipsum": "again",
 				"world.lorem.dolor": "sit"},
-			Options{},
 		},
 		// empty object
 		{
 			`{"hello":{"empty":{"nested":{}}}}`,
+			nil,
 			map[string]interface{}{"hello.empty.nested": map[string]interface{}{}},
-			Options{},
 		},
 		// custom delimiter
 		{
 			`{"hello":{"world":{"again":"good morning"}}}`,
+			&Options{
+				Delimiter: ":",
+				MaxDepth:  20,
+			},
 			map[string]interface{}{"hello:world:again": "good morning"},
-			Options{Delimiter: ":"},
 		},
 		// custom depth
 		{
@@ -134,19 +137,25 @@ func TestFlatten(t *testing.T) {
 				}
 			}
 			`,
+			&Options{
+				MaxDepth:  2,
+				Delimiter: ".",
+			},
 			map[string]interface{}{
 				"hello.world": map[string]interface{}{"again": "good morning"},
 				"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
 			},
-			Options{MaxDepth: 2},
 		},
 		// custom safe = true
 		{
 			`{"hello":{"world":["one","two"]}}`,
+			&Options{
+				Safe:      true,
+				Delimiter: ".",
+			},
 			map[string]interface{}{
 				"hello.world": []interface{}{"one", "two"},
 			},
-			Options{Safe: true},
 		},
 	}
 	for i, test := range tests {
