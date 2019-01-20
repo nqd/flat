@@ -63,6 +63,12 @@ func TestFlatten(t *testing.T) {
 			map[string]interface{}{"hello.world": nil},
 			Options{},
 		},
+		// empty slice
+		{
+			`{"hello":{"world":[]}}`,
+			map[string]interface{}{"hello.world": []interface{}{}},
+			Options{},
+		},
 		// slice
 		{
 			`{"hello":{"world":["one","two"]}}`,
@@ -290,14 +296,15 @@ func TestFMap(t *testing.T) {
 			},
 		},
 		// empty slice
-		// {
-		// 	"hello",
-		// 	`[]`,
-		// 	Options{
-		// 		Delimiter: ".",
-		// 	},
-		// 	map[string]interface{}{"hello": map[string]interface{}{}},
-		// },
+		{
+			"hello",
+			`[]`,
+			Options{
+				Delimiter: ".",
+				Safe:      true,
+			},
+			map[string]interface{}{"hello": []interface{}{}},
+		},
 		// slice
 		{
 			"hello",

@@ -67,6 +67,10 @@ func f(prefix string, depth int, nested interface{}, opts Options) (flatmap map[
 			flatmap[prefix] = nested
 			return
 		}
+		if reflect.DeepEqual(nested, []interface{}{}) {
+			flatmap[prefix] = nested
+			return
+		}
 		for i, v := range nested {
 			newKey := strconv.Itoa(i)
 			if prefix != "" {
