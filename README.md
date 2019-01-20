@@ -120,7 +120,7 @@ out, err := flat.Flatten(in, &flat.Options{
     MaxDepth:  2,
 })
 // out = map[string]interface{}{
-//     "hello:world": map[string]interface{}{"again": "good morning"},
+//     "hello.world": map[string]interface{}{"again": "good morning"},
 // }
 ```
 
