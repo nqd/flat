@@ -8,20 +8,18 @@ import (
 	"github.com/imdario/mergo"
 )
 
-// Options the flatten options
-// by default
-// Demiliter: "."
-// Safe: false
-// MaxDepth: 20
+// Options the flatten options.
+// By default: Demiliter = "."
 type Options struct {
 	Delimiter string
 	Safe      bool
-	Object    bool
 	MaxDepth  int
 }
 
 // Flatten the map, it returns a map one level deep
-// regardless of how nested the original map was
+// regardless of how nested the original map was.
+// By default, the flatten has Delimiter = ".", and
+// no limitation of MaxDepth
 func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interface{}, err error) {
 	if opts == nil {
 		opts = &Options{
@@ -87,16 +85,11 @@ func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatm
 	return
 }
 
-// merge is the function that update to map with from and key
-// example: from is a map
+// update is the function that update to map with from
+// example:
 // to = {"hi": "there"}
 // from = {"foo": "bar"}
-// new to = {"hi": "there", "foo": "bar"}
-// example: from is an empty map
-// to = {"hi": "there"}
-// from = {}
-// key = "world"
-// key = {"hi": "there", "world": {}}
+// then, to = {"hi": "there", "foo": "bar"}
 func update(to map[string]interface{}, from map[string]interface{}) {
 	for kt, vt := range from {
 		to[kt] = vt
@@ -104,6 +97,7 @@ func update(to map[string]interface{}, from map[string]interface{}) {
 }
 
 // Unflatten the map, it returns a nested map of a map
+// By default, the flatten has Delimiter = "."
 func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
 	if opts == nil {
 		opts = &Options{
