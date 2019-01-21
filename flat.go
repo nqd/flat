@@ -97,6 +97,7 @@ func update(to map[string]interface{}, from map[string]interface{}) {
 }
 
 // Unflatten the map, it returns a nested map of a map
+// By default, the flatten has Delimiter = "."
 func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
 	if opts == nil {
 		opts = &Options{
