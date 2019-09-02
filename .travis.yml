@@ -6,5 +6,8 @@ go:
 env:
 - GO111MODULE=off
 
+install:
+- go get -t ./...
+
 script:
 - make test
