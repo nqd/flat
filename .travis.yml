@@ -3,5 +3,8 @@ language: go
 go:
   - "1.12"
 
+env:
+- GO111MODULE=off
+
 script:
 - make test
