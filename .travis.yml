@@ -1,13 +1,23 @@
 language: go
 
+sudo: false
+
 go:
-  - "1.12"
+- 1.12.x
 
 env:
 - GO111MODULE=off
 
 install:
 - go get -t ./...
+- go get -u honnef.co/go/tools/cmd/staticcheck
+- go get -u github.com/client9/misspell/cmd/misspell
+
+before_script:
+- $(exit $(go fmt ./... | wc -l))
+- go vet ./...
+- misspell -error -locale US .
+- staticcheck ./...
 
 script:
-- make test
+- go test -race ./...
