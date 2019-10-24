@@ -109,6 +109,40 @@ func TestUnflatten(t *testing.T) {
 				"travis": "true",
 			},
 		},
+		// use flat syntax in nested object
+		{
+			map[string]interface{}{
+				"pew": map[string]interface{}{
+					"woop.party": "rainbows!",
+				},
+			},
+			nil,
+			map[string]interface{}{
+				"pew": map[string]interface{}{
+					"woop": map[string]interface{}{
+						"party": "rainbows!",
+					},
+				},
+			},
+		},
+		// use flat syntax in nested array objects
+		{
+			map[string]interface{}{
+				"pew": []interface{}{
+					map[string]interface{}{"woop.party": "rainbows!"},
+				},
+			},
+			nil,
+			map[string]interface{}{
+				"pew": []interface{}{
+					map[string]interface{}{
+						"woop": map[string]interface{}{
+							"party": "rainbows!",
+						},
+					},
+				},
+			},
+		},
 		// todo
 		// overwrite true
 		// {

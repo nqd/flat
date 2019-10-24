@@ -1,10 +1,84 @@
 package flat
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/imdario/mergo"
 )
+
+// isObject checks wether the given input is an object
+func isObject(in interface{}) bool {
+	_, ok := in.(map[string]interface{})
+	return ok
+}
+
+// isArray checks wether the given input is an array
+func isArray(in interface{}) bool {
+	_, ok := in.([]interface{})
+	return ok
+}
+
+// recursivelyUnflattenArray recusively unflattens an array
+func recursivelyUnflattenArray(in []interface{}, opts *Options) ([]interface{}, error) {
+	out := make([]interface{}, len(in))
+
+	err := errors.New("")
+	for key, value := range in {
+		if isObject(value) {
+			object, _ := value.(map[string]interface{})
+
+			out[key], err = recursivelyUnflattenObject(object, opts)
+			if err != nil {
+				return nil, err
+			}
+		} else if isArray(value) {
+			array, _ := value.([]interface{})
+
+			out[key], err = recursivelyUnflattenArray(array, opts)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			out[key] = value
+		}
+	}
+
+	return out, nil
+}
+
+// recursivelyUnflattenObject recursively callten the Unflatten function
+func recursivelyUnflattenObject(in interface{}, opts *Options) (map[string]interface{}, error) {
+	inputMap, ok := in.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("provided input was not an object")
+	}
+
+	out, err := unflatten(inputMap, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range out {
+		if isObject(value) {
+			out[key], err = recursivelyUnflattenObject(value, opts)
+			if err != nil {
+				return nil, err
+			}
+		} else if isArray(value) {
+			array, _ := value.([]interface{})
+
+			out[key], err = recursivelyUnflattenArray(array, opts)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			out[key] = value
+		}
+	}
+
+	return out, nil
+}
 
 // Options the flatten options.
 // By default: Demiliter = "."
@@ -22,7 +96,7 @@ func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]in
 			Delimiter: ".",
 		}
 	}
-	nested, err = unflatten(flat, opts)
+	nested, err = recursivelyUnflattenObject(flat, opts)
 	return
 }
 
