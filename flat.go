@@ -7,16 +7,16 @@ import (
 	"github.com/imdario/mergo"
 )
 
-// isObject checks wether the given input is an object
-func isObject(in interface{}) bool {
-	_, ok := in.(map[string]interface{})
-	return ok
+// castObject tries to cast to a generic object
+func castObject(in interface{}) (map[string]interface{}, bool) {
+	casted, ok := in.(map[string]interface{})
+	return casted, ok
 }
 
-// isArray checks wether the given input is an array
-func isArray(in interface{}) bool {
-	_, ok := in.([]interface{})
-	return ok
+// castArray tries to cast to a generic array
+func castArray(in interface{}) ([]interface{}, bool) {
+	casted, ok := in.([]interface{})
+	return casted, ok
 }
 
 // recursivelyUnflattenArray recusively unflattens an array
@@ -25,23 +25,25 @@ func recursivelyUnflattenArray(in []interface{}, opts *Options) ([]interface{}, 
 
 	err := errors.New("")
 	for key, value := range in {
-		if isObject(value) {
-			object, _ := value.(map[string]interface{})
+		if object, ok := castObject(value); ok {
 
 			out[key], err = recursivelyUnflattenObject(object, opts)
 			if err != nil {
 				return nil, err
 			}
-		} else if isArray(value) {
-			array, _ := value.([]interface{})
 
+			continue
+		}
+		if array, ok := castArray(value); ok {
 			out[key], err = recursivelyUnflattenArray(array, opts)
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			out[key] = value
+
+			continue
+
 		}
+		out[key] = value
 	}
 
 	return out, nil
@@ -54,27 +56,34 @@ func recursivelyUnflattenObject(in interface{}, opts *Options) (map[string]inter
 		return nil, errors.New("provided input was not an object")
 	}
 
+	// flatten current depth
 	out, err := unflatten(inputMap, opts)
 	if err != nil {
 		return nil, err
 	}
 
+	// check whether some fields if they need to be recursed (type of array or "objects")
+	// and recurse them if neccessary
 	for key, value := range out {
-		if isObject(value) {
+		if _, ok := castObject(value); ok {
 			out[key], err = recursivelyUnflattenObject(value, opts)
 			if err != nil {
 				return nil, err
 			}
-		} else if isArray(value) {
-			array, _ := value.([]interface{})
 
+			continue
+		}
+
+		if array, ok := castArray(value); ok {
 			out[key], err = recursivelyUnflattenArray(array, opts)
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			out[key] = value
+
+			continue
 		}
+
+		out[key] = value
 	}
 
 	return out, nil
