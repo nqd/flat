@@ -14,17 +14,6 @@ type Options struct {
 	MaxDepth  int
 }
 
-// update is the function that update to map with from
-// example:
-// to = {"hi": "there"}
-// from = {"foo": "bar"}
-// then, to = {"hi": "there", "foo": "bar"}
-func update(to map[string]interface{}, from map[string]interface{}) {
-	for kt, vt := range from {
-		to[kt] = vt
-	}
-}
-
 // Unflatten the map, it returns a nested map of a map
 // By default, the flatten has Delimiter = "."
 func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
