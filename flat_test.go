@@ -143,25 +143,6 @@ func TestUnflatten(t *testing.T) {
 				},
 			},
 		},
-		// todo
-		// overwrite true
-		// {
-		// 	map[string]interface{}{
-		// 		"travis":           "true",
-		// 		"travis_build_dir": "/home/foo",
-		// 	},
-		// 	Options{
-		// 		Delimiter: "_",
-		// 		Overwrite: true,
-		// 	},
-		// 	map[string]interface{}{
-		// 		"travis": map[string]interface{}{
-		// 			"build": map[string]interface{}{
-		// 				"dir": "/home/foo",
-		// 			},
-		// 		},
-		// 	},
-		// },
 	}
 	for i, test := range tests {
 		got, err := Unflatten(test.flat, test.options)
