@@ -278,6 +278,22 @@ func TestUnflatten(t *testing.T) {
 				"travis": "true",
 			},
 		},
+		// keys with nil values
+		{
+			map[string]interface{}{
+				"foo.bar": map[string]interface{}{"t": nil},
+				"foo":     map[string]interface{}{"k": nil},
+			},
+			nil,
+			map[string]interface{}{
+				"foo": map[string]interface{}{
+					"bar": map[string]interface{}{
+						"t": nil,
+					},
+					"k": nil,
+				},
+			},
+		},
 		// todo
 		// overwrite true
 		// {
