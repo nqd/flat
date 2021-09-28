@@ -113,7 +113,7 @@ func unflatten(flat map[string]interface{}, opts *Options) (nested map[string]in
 
 	for k, v := range flat {
 		temp := uf(k, v, opts).(map[string]interface{})
-		err = mergo.Merge(&nested, temp, func(c *mergo.Config) {c.Overwrite = true})
+		err = mergo.Merge(&nested, temp, func(c *mergo.Config) { c.Overwrite = true })
 		if err != nil {
 			return
 		}

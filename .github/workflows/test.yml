@@ -1,0 +1,34 @@
+name: build
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.16
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.16
+      id: go
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install deps
+      shell: bash --noprofile --norc -x -eo pipefail {0}
+      run: |
+        go get -u honnef.co/go/tools/cmd/staticcheck
+        go get -u github.com/client9/misspell/cmd/misspell
+
+    - name: Lint
+      shell: bash --noprofile --norc -x -eo pipefail {0}
+      run: |
+        $(exit $(go fmt ./... | wc -l))
+        misspell -error -locale US .
+        staticcheck ./...
+
+    - name: Test
+      run: |
+        go test -race ./...
