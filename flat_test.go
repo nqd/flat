@@ -1,16 +1,17 @@
 package flat
 
 import (
-	"encoding/json"
 	"reflect"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestFlatten(t *testing.T) {
 	tests := []struct {
-		given   string
+		given   bson.M
 		options *Options
-		want    map[string]interface{}
+		want    bson.M
 	}{
 		// test with different primitives
 		// String: 'world',
@@ -18,90 +19,90 @@ func TestFlatten(t *testing.T) {
 		// Boolean: true,
 		// null: null,
 		{
-			`{"hello": "world"}`,
+			bson.M{"hello": "world"},
 			nil,
-			map[string]interface{}{"hello": "world"},
+			bson.M{"hello": "world"},
 		},
 		{
-			`{"hello": 1234.99}`,
+			bson.M{"hello": 1234.99},
 			nil,
-			map[string]interface{}{"hello": 1234.99},
+			bson.M{"hello": 1234.99},
 		},
 		{
-			`{"hello": true}`,
+			bson.M{"hello": true},
 			nil,
-			map[string]interface{}{"hello": true},
+			bson.M{"hello": true},
 		},
 		{
-			`{"hello": null}`,
+			bson.M{"hello": nil},
 			nil,
-			map[string]interface{}{"hello": nil},
+			bson.M{"hello": nil},
 		},
 		// nested once
 		{
-			`{"hello":{}}`,
+			bson.M{"hello": bson.M{}},
 			nil,
-			map[string]interface{}{"hello": map[string]interface{}{}},
+			bson.M{"hello": bson.M{}},
 		},
 		{
-			`{"hello":{"world":"good morning"}}`,
+			bson.M{"hello": bson.M{"world": "good morning"}},
 			nil,
-			map[string]interface{}{"hello.world": "good morning"},
+			bson.M{"hello.world": "good morning"},
 		},
 		{
-			`{"hello":{"world":1234.99}}`,
+			bson.M{"hello": bson.M{"world": 1234.99}},
 			nil,
-			map[string]interface{}{"hello.world": 1234.99},
+			bson.M{"hello.world": 1234.99},
 		},
 		{
-			`{"hello":{"world":true}}`,
+			bson.M{"hello": bson.M{"world": true}},
 			nil,
-			map[string]interface{}{"hello.world": true},
+			bson.M{"hello.world": true},
 		},
 		{
-			`{"hello":{"world":null}}`,
+			bson.M{"hello": bson.M{"world": nil}},
 			nil,
-			map[string]interface{}{"hello.world": nil},
+			bson.M{"hello.world": nil},
 		},
 		// empty slice
 		{
-			`{"hello":{"world":[]}}`,
+			bson.M{"hello": bson.M{"world": bson.A{}}},
 			nil,
-			map[string]interface{}{"hello.world": []interface{}{}},
+			bson.M{"hello.world": bson.A{}},
 		},
 		// slice
 		{
-			`{"hello":{"world":["one","two"]}}`,
+			bson.M{"hello": bson.M{"world": bson.A{"one", "two"}}},
 			nil,
-			map[string]interface{}{
+			bson.M{
 				"hello.world.0": "one",
 				"hello.world.1": "two",
 			},
 		},
 		// nested twice
 		{
-			`{"hello":{"world":{"again":"good morning"}}}`,
+			bson.M{"hello": bson.M{"world": bson.M{"again": "good morning"}}},
 			nil,
-			map[string]interface{}{"hello.world.again": "good morning"},
+			bson.M{"hello.world.again": "good morning"},
 		},
 		// multiple keys
 		{
-			`{
-				"hello": {
-					"lorem": {
-						"ipsum":"again",
-						"dolor":"sit"
-					}
+			bson.M{
+				"hello": bson.M{
+					"lorem": bson.M{
+						"ipsum": "again",
+						"dolor": "sit",
+					},
 				},
-				"world": {
-					"lorem": {
-						"ipsum":"again",
-						"dolor":"sit"
-					}
-				}
-			}`,
+				"world": bson.M{
+					"lorem": bson.M{
+						"ipsum": "again",
+						"dolor": "sit",
+					},
+				},
+			},
 			nil,
-			map[string]interface{}{
+			bson.M{
 				"hello.lorem.ipsum": "again",
 				"hello.lorem.dolor": "sit",
 				"world.lorem.ipsum": "again",
@@ -109,62 +110,56 @@ func TestFlatten(t *testing.T) {
 		},
 		// empty object
 		{
-			`{"hello":{"empty":{"nested":{}}}}`,
+			bson.M{"hello": bson.M{"empty": bson.M{"nested": bson.M{}}}},
 			nil,
-			map[string]interface{}{"hello.empty.nested": map[string]interface{}{}},
+			bson.M{"hello.empty.nested": bson.M{}},
 		},
 		// custom delimiter
 		{
-			`{"hello":{"world":{"again":"good morning"}}}`,
+			bson.M{"hello": bson.M{"world": bson.M{"again": "good morning"}}},
 			&Options{
 				Delimiter: ":",
 				MaxDepth:  20,
 			},
-			map[string]interface{}{"hello:world:again": "good morning"},
+			bson.M{"hello:world:again": "good morning"},
 		},
 		// custom depth
 		{
-			`{
-				"hello": {
-					"world": {
-						"again": "good morning"
-					}
+			bson.M{
+				"hello": bson.M{
+					"world": bson.M{
+						"again": "good morning",
+					},
 				},
-				"lorem": {
-					"ipsum": {
-						"dolor": "good evening"
-					}
-				}
-			}
-			`,
+				"lorem": bson.M{
+					"ipsum": bson.M{
+						"dolor": "good evening",
+					},
+				},
+			},
 			&Options{
 				MaxDepth:  2,
 				Delimiter: ".",
 			},
-			map[string]interface{}{
-				"hello.world": map[string]interface{}{"again": "good morning"},
-				"lorem.ipsum": map[string]interface{}{"dolor": "good evening"},
+			bson.M{
+				"hello.world": bson.M{"again": "good morning"},
+				"lorem.ipsum": bson.M{"dolor": "good evening"},
 			},
 		},
 		// custom safe = true
 		{
-			`{"hello":{"world":["one","two"]}}`,
+			bson.M{"hello": bson.M{"world": bson.A{"one", "two"}}},
 			&Options{
 				Safe:      true,
 				Delimiter: ".",
 			},
-			map[string]interface{}{
-				"hello.world": []interface{}{"one", "two"},
+			bson.M{
+				"hello.world": bson.A{"one", "two"},
 			},
 		},
 	}
 	for i, test := range tests {
-		var given interface{}
-		err := json.Unmarshal([]byte(test.given), &given)
-		if err != nil {
-			t.Errorf("%d: failed to unmarshal test: %v", i+1, err)
-		}
-		got, err := Flatten(given.(map[string]interface{}), test.options)
+		got, err := Flatten(test.given, test.options)
 		if err != nil {
 			t.Errorf("%d: failed to flatten: %v", i+1, err)
 		}
@@ -176,32 +171,32 @@ func TestFlatten(t *testing.T) {
 
 func TestUnflatten(t *testing.T) {
 	tests := []struct {
-		flat    map[string]interface{}
+		flat    bson.M
 		options *Options
-		want    map[string]interface{}
+		want    bson.M
 	}{
 		{
-			map[string]interface{}{"hello": "world"},
+			bson.M{"hello": "world"},
 			nil,
-			map[string]interface{}{"hello": "world"},
+			bson.M{"hello": "world"},
 		},
 		{
-			map[string]interface{}{"hello": 1234.56},
+			bson.M{"hello": 1234.56},
 			nil,
-			map[string]interface{}{"hello": 1234.56},
+			bson.M{"hello": 1234.56},
 		},
 		{
-			map[string]interface{}{"hello": true},
+			bson.M{"hello": true},
 			nil,
-			map[string]interface{}{"hello": true},
+			bson.M{"hello": true},
 		},
 		// nested twice
 		{
-			map[string]interface{}{"hello.world.again": "good morning"},
+			bson.M{"hello.world.again": "good morning"},
 			nil,
-			map[string]interface{}{
-				"hello": map[string]interface{}{
-					"world": map[string]interface{}{
+			bson.M{
+				"hello": bson.M{
+					"world": bson.M{
 						"again": "good morning",
 					},
 				},
@@ -209,24 +204,24 @@ func TestUnflatten(t *testing.T) {
 		},
 		// multiple keys
 		{
-			map[string]interface{}{
+			bson.M{
 				"hello.lorem.ipsum": "again",
 				"hello.lorem.dolor": "sit",
 				"world.lorem.ipsum": "again",
 				"world.lorem.dolor": "sit",
-				"world":             map[string]interface{}{"greet": "hello"},
+				"world":             bson.M{"greet": "hello"},
 			},
 			nil,
-			map[string]interface{}{
-				"hello": map[string]interface{}{
-					"lorem": map[string]interface{}{
+			bson.M{
+				"hello": bson.M{
+					"lorem": bson.M{
 						"ipsum": "again",
 						"dolor": "sit",
 					},
 				},
-				"world": map[string]interface{}{
+				"world": bson.M{
 					"greet": "hello",
-					"lorem": map[string]interface{}{
+					"lorem": bson.M{
 						"ipsum": "again",
 						"dolor": "sit",
 					},
@@ -235,14 +230,14 @@ func TestUnflatten(t *testing.T) {
 		},
 		// nested objects do not clobber each other
 		{
-			map[string]interface{}{
-				"foo.bar": map[string]interface{}{"t": 123},
-				"foo":     map[string]interface{}{"k": 456},
+			bson.M{
+				"foo.bar": bson.M{"t": 123},
+				"foo":     bson.M{"k": 456},
 			},
 			nil,
-			map[string]interface{}{
-				"foo": map[string]interface{}{
-					"bar": map[string]interface{}{
+			bson.M{
+				"foo": bson.M{
+					"bar": bson.M{
 						"t": 123,
 					},
 					"k": 456,
@@ -251,15 +246,15 @@ func TestUnflatten(t *testing.T) {
 		},
 		// custom delimiter
 		{
-			map[string]interface{}{
+			bson.M{
 				"hello world again": "good morning",
 			},
 			&Options{
 				Delimiter: " ",
 			},
-			map[string]interface{}{
-				"hello": map[string]interface{}{
-					"world": map[string]interface{}{
+			bson.M{
+				"hello": bson.M{
+					"world": bson.M{
 						"again": "good morning",
 					},
 				},
@@ -267,27 +262,27 @@ func TestUnflatten(t *testing.T) {
 		},
 		// do not overwrite
 		{
-			map[string]interface{}{
+			bson.M{
 				"travis":           "true",
 				"travis_build_dir": "/home/foo",
 			},
 			&Options{
 				Delimiter: "_",
 			},
-			map[string]interface{}{
+			bson.M{
 				"travis": "true",
 			},
 		},
 		// keys with nil values
 		{
-			map[string]interface{}{
-				"foo.bar": map[string]interface{}{"t": nil},
-				"foo":     map[string]interface{}{"k": nil},
+			bson.M{
+				"foo.bar": bson.M{"t": nil},
+				"foo":     bson.M{"k": nil},
 			},
 			nil,
-			map[string]interface{}{
-				"foo": map[string]interface{}{
-					"bar": map[string]interface{}{
+			bson.M{
+				"foo": bson.M{
+					"bar": bson.M{
 						"t": nil,
 					},
 					"k": nil,
@@ -297,7 +292,7 @@ func TestUnflatten(t *testing.T) {
 		// todo
 		// overwrite true
 		// {
-		// 	map[string]interface{}{
+		// 	bson.M{
 		// 		"travis":           "true",
 		// 		"travis_build_dir": "/home/foo",
 		// 	},
@@ -305,9 +300,9 @@ func TestUnflatten(t *testing.T) {
 		// 		Delimiter: "_",
 		// 		Overwrite: true,
 		// 	},
-		// 	map[string]interface{}{
-		// 		"travis": map[string]interface{}{
-		// 			"build": map[string]interface{}{
+		// 	bson.M{
+		// 		"travis": bson.M{
+		// 			"build": bson.M{
 		// 				"dir": "/home/foo",
 		// 			},
 		// 		},

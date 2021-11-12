@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Options the flatten options.
@@ -20,7 +21,7 @@ type Options struct {
 // regardless of how nested the original map was.
 // By default, the flatten has Delimiter = ".", and
 // no limitation of MaxDepth
-func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interface{}, err error) {
+func Flatten(nested bson.M, opts *Options) (m bson.M, err error) {
 	if opts == nil {
 		opts = &Options{
 			Delimiter: ".",
@@ -32,16 +33,16 @@ func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interfa
 	return
 }
 
-func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatmap map[string]interface{}, err error) {
-	flatmap = make(map[string]interface{})
+func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatmap bson.M, err error) {
+	flatmap = bson.M{}
 
 	switch nested := nested.(type) {
-	case map[string]interface{}:
+	case bson.M:
 		if opts.MaxDepth != 0 && depth >= opts.MaxDepth {
 			flatmap[prefix] = nested
 			return
 		}
-		if reflect.DeepEqual(nested, map[string]interface{}{}) {
+		if reflect.DeepEqual(nested, bson.M{}) {
 			flatmap[prefix] = nested
 			return
 		}
@@ -58,12 +59,12 @@ func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatm
 			}
 			update(flatmap, fm1)
 		}
-	case []interface{}:
+	case bson.A:
 		if opts.Safe {
 			flatmap[prefix] = nested
 			return
 		}
-		if reflect.DeepEqual(nested, []interface{}{}) {
+		if reflect.DeepEqual(nested, bson.A{}) {
 			flatmap[prefix] = nested
 			return
 		}
@@ -90,7 +91,7 @@ func flatten(prefix string, depth int, nested interface{}, opts *Options) (flatm
 // to = {"hi": "there"}
 // from = {"foo": "bar"}
 // then, to = {"hi": "there", "foo": "bar"}
-func update(to map[string]interface{}, from map[string]interface{}) {
+func update(to bson.M, from bson.M) {
 	for kt, vt := range from {
 		to[kt] = vt
 	}
@@ -98,7 +99,7 @@ func update(to map[string]interface{}, from map[string]interface{}) {
 
 // Unflatten the map, it returns a nested map of a map
 // By default, the flatten has Delimiter = "."
-func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
+func Unflatten(flat bson.M, opts *Options) (nested bson.M, err error) {
 	if opts == nil {
 		opts = &Options{
 			Delimiter: ".",
@@ -108,11 +109,11 @@ func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]in
 	return
 }
 
-func unflatten(flat map[string]interface{}, opts *Options) (nested map[string]interface{}, err error) {
-	nested = make(map[string]interface{})
+func unflatten(flat bson.M, opts *Options) (nested bson.M, err error) {
+	nested = make(bson.M)
 
 	for k, v := range flat {
-		temp := uf(k, v, opts).(map[string]interface{})
+		temp := uf(k, v, opts).(bson.M)
 		err = mergo.Merge(&nested, temp, func(c *mergo.Config) { c.Overwrite = true })
 		if err != nil {
 			return
@@ -128,7 +129,7 @@ func uf(k string, v interface{}, opts *Options) (n interface{}) {
 	keys := strings.Split(k, opts.Delimiter)
 
 	for i := len(keys) - 1; i >= 0; i-- {
-		temp := make(map[string]interface{})
+		temp := make(bson.M)
 		temp[keys[i]] = n
 		n = temp
 	}

@@ -1,7 +1,9 @@
-# flat [![Build Status](https://secure.travis-ci.org/nqd/flat.png?branch=master)](http://travis-ci.org/nqd/flat)
+# flat (BSON variant)
+**forked from [nqd/flat](https://github.com/nqd/flat)**
 
-Take a golang map and flatten it or unfatten a map with delimited key.
+Take a mongo bson.M and flatten it or unflatten a map with delimited key.
 
+Forked from 
 This work inspired by the [nodejs flat package](https://github.com/hughsk/flat/)
 
 ## Method
@@ -11,17 +13,17 @@ This work inspired by the [nodejs flat package](https://github.com/hughsk/flat/)
 Flatten given map, returns a map one level deep.
 
 ```{go}
-in := map[string]interface{}{
+in := bson.M{
     "a": "b",
-    "c": map[string]interface{}{
+    "c": bson.M{
         "d": "e",
         "f": "g",
     },
-    "z": [2, 1.4567],
+    "z": bson.A{2, 1.4567},
 }
 
 out, err := flat.Flatten(in, nil)
-// out = map[string]interface{}{
+// out = bson.M{
 //     "a": "b",
 //     "c.d": "e",
 //     "c.f": "g",
@@ -32,18 +34,18 @@ out, err := flat.Flatten(in, nil)
 
 ### Unflatten
 
-Since there is flatten, flat should have unfatten.
+Since there is flatten, flat should have unflatten.
 
 ```{go}
-in := map[string]interface{}{
-    "foo.bar": map[string]interface{}{"t": 123},
-    "foo":     map[string]interface{}{"k": 456},
+in := bson.M{
+    "foo.bar": bson.M{"t": 123},
+    "foo":     bson.M{"k": 456},
 }
 
 out, err := flat.Unflatten(in, nil)
-// out = map[string]interface{}{
-//     "foo": map[string]interface{}{
-//         "bar": map[string]interface{}{
+// out = bson.M{
+//     "foo": bson.M{
+//         "bar": bson.M{
 //             "t": 123,
 //         },
 //         "k": 456,
@@ -58,9 +60,9 @@ out, err := flat.Unflatten(in, nil)
 Use a custom delimiter for flattening/unflattening your objects. Default value is `.`.
 
 ```{go}
-in := map[string]interface{}{
-   "hello": map[string]interface{}{
-       "world": map[string]interface{}{
+in := bson.M{
+   "hello": bson.M{
+       "world": bson.M{
            "again": "good morning",
         }
     },
@@ -69,20 +71,20 @@ in := map[string]interface{}{
 out, err := flat.Flatten(in, &flat.Options{
     Delimiter: ":",
 })
-// out = map[string]interface{}{
+// out = bson.M{
 //     "hello:world:again": "good morning",
 // }
 ```
 
 ### Safe
 
-<!-- When Safe is true, both fatten and unflatten will preserve arrays and their contents. Default Safe value is `false`. -->
+<!-- When Safe is true, both fatten and unflatten will preserve bson.As and their contents. Default Safe value is `false`. -->
 When Safe is true, fatten will preserve arrays and their contents. Default Safe value is `false`.
 
 ```{go}
-in := map[string]interface{}{
-    "hello": map[string]interface{}{
-        "world": []interface{}{
+in := bson.M{
+    "hello": bson.M{
+        "world": bson.A{
             "one",
             "two",
         }
@@ -93,8 +95,8 @@ out, err := flat.Flatten(in, &flat.Options{
     Delimiter: ".",
     Safe:      true,
 })
-// out = map[string]interface{}{
-//     "hello.world": []interface{}{"one", "two"},
+// out = bson.M{
+//     "hello.world": bson.A{"one", "two"},
 // }
 ```
 
@@ -107,9 +109,9 @@ MaxDepth is the maximum number of nested objects to flatten. MaxDepth can be any
 Default MaxDepth value is `0`.
 
 ```{go}
-in := map[string]interface{}{
-    "hello": map[string]interface{}{
-        "world": []interface{}{
+in := bson.M{
+    "hello": bson.M{
+        "world": bson.M{
             "again": "good morning",
         }
    },
@@ -119,8 +121,8 @@ out, err := flat.Flatten(in, &flat.Options{
     Delimiter: ".",
     MaxDepth:  2,
 })
-// out = map[string]interface{}{
-//     "hello.world": map[string]interface{}{"again": "good morning"},
+// out = bson.M{
+//     "hello.world": bson.M{"again": "good morning"},
 // }
 ```
 
