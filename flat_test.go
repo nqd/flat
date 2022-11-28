@@ -12,7 +12,7 @@ func TestFlatten(t *testing.T) {
 		options *Options
 		want    map[string]interface{}
 	}{
-		// test with different primitives
+		// test with different primitives and upper/lower case
 		// String: 'world',
 		// Number: 1234.99,
 		// Boolean: true,
@@ -21,6 +21,11 @@ func TestFlatten(t *testing.T) {
 			`{"hello": "world"}`,
 			nil,
 			map[string]interface{}{"hello": "world"},
+		},
+		{
+			`{"Hello": "world"}`,
+			nil,
+			map[string]interface{}{"Hello": "world"},
 		},
 		{
 			`{"hello": 1234.99}`,
@@ -47,6 +52,21 @@ func TestFlatten(t *testing.T) {
 			`{"hello":{"world":"good morning"}}`,
 			nil,
 			map[string]interface{}{"hello.world": "good morning"},
+		},
+		{
+			`{"Hello":{"world":"good morning"}}`,
+			nil,
+			map[string]interface{}{"Hello.world": "good morning"},
+		},
+		{
+			`{"hello":{"World":"good morning"}}`,
+			nil,
+			map[string]interface{}{"hello.World": "good morning"},
+		},
+		{
+			`{"Hello":{"World":"good morning"}}`,
+			nil,
+			map[string]interface{}{"Hello.World": "good morning"},
 		},
 		{
 			`{"hello":{"world":1234.99}}`,
@@ -185,6 +205,12 @@ func TestUnflatten(t *testing.T) {
 			nil,
 			map[string]interface{}{"hello": "world"},
 		},
+		// Key starts with upper case
+		{
+			map[string]interface{}{"Hello": "world"},
+			nil,
+			map[string]interface{}{"Hello": "world"},
+		},
 		{
 			map[string]interface{}{"hello": 1234.56},
 			nil,
@@ -228,6 +254,44 @@ func TestUnflatten(t *testing.T) {
 					"greet": "hello",
 					"lorem": map[string]interface{}{
 						"ipsum": "again",
+						"dolor": "sit",
+					},
+				},
+			},
+		},
+		// multiple keys - key starts with upper case
+		{
+			map[string]interface{}{
+				"Hello.lorem.ipsum": "L1 upper",
+				"hello.lorem.ipsum": "L1 lower",
+				"hello.Lorem.dolor": "L2 upper",
+				"hello.lorem.dolor": "L2 lower",
+				"world.lorem.Ipsum": "L3 upper",
+				"world.lorem.ipsum": "L3 lower",
+				"world.lorem.dolor": "sit",
+				"world": map[string]interface{}{
+					"greet": "hello",
+					"From":  "alice",
+				},
+			},
+			nil,
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"lorem": map[string]interface{}{
+						"ipsum": "L1 lower",
+						"dolor": "L2 lower",
+					},
+					"Lorem": map[string]interface{}{"dolor": "L2 upper"},
+				},
+				"Hello": map[string]interface{}{
+					"lorem": map[string]interface{}{"ipsum": "L1 upper"},
+				},
+				"world": map[string]interface{}{
+					"greet": "hello",
+					"From":  "alice",
+					"lorem": map[string]interface{}{
+						"ipsum": "L3 lower",
+						"Ipsum": "L3 upper",
 						"dolor": "sit",
 					},
 				},
