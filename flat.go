@@ -9,7 +9,7 @@ import (
 )
 
 // Options the flatten options.
-// By default: Demiliter = "."
+// By default: Delimiter = "."
 type Options struct {
 	Delimiter string
 	Safe      bool
