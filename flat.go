@@ -11,6 +11,7 @@ import (
 // Options the flatten options.
 // By default: Delimiter = "."
 type Options struct {
+	Prefix    string
 	Delimiter string
 	Safe      bool
 	MaxDepth  int
@@ -27,7 +28,7 @@ func Flatten(nested map[string]interface{}, opts *Options) (m map[string]interfa
 		}
 	}
 
-	m, err = flatten("", 0, nested, opts)
+	m, err = flatten(opts.Prefix, 0, nested, opts)
 
 	return
 }
@@ -125,6 +126,9 @@ func unflatten(flat map[string]interface{}, opts *Options) (nested map[string]in
 func uf(k string, v interface{}, opts *Options) (n interface{}) {
 	n = v
 
+	if opts.Prefix != "" {
+		k = strings.TrimPrefix(k, opts.Prefix+opts.Delimiter)
+	}
 	keys := strings.Split(k, opts.Delimiter)
 
 	for i := len(keys) - 1; i >= 0; i-- {

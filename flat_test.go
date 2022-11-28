@@ -388,3 +388,123 @@ func TestUnflatten(t *testing.T) {
 		}
 	}
 }
+
+func TestFlattenPrefix(t *testing.T) {
+	tests := []struct {
+		given   string
+		options *Options
+		want    map[string]interface{}
+	}{
+		// test with different primitives
+		// String: 'world',
+		// Number: 1234.99,
+		// Boolean: true,
+		// null: null,
+		{
+			`{"hello": "world"}`,
+			&Options{Prefix: "test", Delimiter: "."},
+			map[string]interface{}{"test.hello": "world"},
+		},
+		{
+			`{"hello": 1234.99}`,
+			&Options{Prefix: "test", Delimiter: "_"},
+			map[string]interface{}{"test_hello": 1234.99},
+		},
+		{
+			`{"hello": true}`,
+			&Options{Prefix: "test", Delimiter: "-"},
+			map[string]interface{}{"test-hello": true},
+		},
+		{
+			`{"hello":{"world":"good morning"}}`,
+			&Options{Prefix: "test", Delimiter: "."},
+			map[string]interface{}{"test.hello.world": "good morning"},
+		},
+		{
+			`{"hello":{"world":1234.99}}`,
+			&Options{Prefix: "test", Delimiter: "_"},
+			map[string]interface{}{"test_hello_world": 1234.99},
+		},
+		{
+			`{"hello":{"world":true}}`,
+			&Options{Prefix: "test", Delimiter: "-"},
+			map[string]interface{}{"test-hello-world": true},
+		},
+	}
+	for i, test := range tests {
+		var given interface{}
+		err := json.Unmarshal([]byte(test.given), &given)
+		if err != nil {
+			t.Errorf("%d: failed to unmarshal test: %v", i+1, err)
+		}
+		got, err := Flatten(given.(map[string]interface{}), test.options)
+		if err != nil {
+			t.Errorf("%d: failed to flatten: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
+		}
+	}
+}
+
+func TestUnflattenPrefix(t *testing.T) {
+	tests := []struct {
+		flat    map[string]interface{}
+		options *Options
+		want    map[string]interface{}
+	}{
+		{
+			map[string]interface{}{"test.hello": "world"},
+			&Options{Prefix: "test", Delimiter: "."},
+			map[string]interface{}{"hello": "world"},
+		},
+		{
+			map[string]interface{}{"test_hello": 1234.56},
+			&Options{Prefix: "test", Delimiter: "_"},
+			map[string]interface{}{"hello": 1234.56},
+		},
+		{
+			map[string]interface{}{"test-hello": true},
+			&Options{Prefix: "test", Delimiter: "-"},
+			map[string]interface{}{"hello": true},
+		},
+		// nested twice
+		{
+			map[string]interface{}{"test.hello.world.again": "good morning"},
+			&Options{Prefix: "test", Delimiter: "."},
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"world": map[string]interface{}{
+						"again": "good morning",
+					},
+				},
+			},
+		},
+		// custom delimiter
+		{
+			map[string]interface{}{
+				"test hello world again": "good morning",
+			},
+			&Options{
+				Prefix:    "test",
+				Delimiter: " ",
+			},
+			map[string]interface{}{
+				"hello": map[string]interface{}{
+					"world": map[string]interface{}{
+						"again": "good morning",
+					},
+				},
+			},
+		},
+	}
+	for i, test := range tests {
+		got, err := Unflatten(test.flat, test.options)
+		if err != nil {
+			t.Errorf("%d: failed to unflatten: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
+		}
+	}
+}
