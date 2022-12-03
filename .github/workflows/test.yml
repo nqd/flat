@@ -19,19 +19,12 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Install deps
-      shell: bash --noprofile --norc -x -eo pipefail {0}
-      run: |
-        go get -u honnef.co/go/tools/cmd/staticcheck
-        go get -u github.com/client9/misspell/cmd/misspell
-
     - name: Lint
       shell: bash --noprofile --norc -x -eo pipefail {0}
       run: |
-        $(exit $(go fmt ./... | wc -l))
-        misspell -error -locale US .
-        staticcheck ./...
+        make lint-pkgs
+        make lint
 
     - name: Test
       run: |
-        go test -race ./...
+        make test
