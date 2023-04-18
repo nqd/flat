@@ -105,7 +105,35 @@ func Unflatten(flat map[string]interface{}, opts *Options) (nested map[string]in
 			Delimiter: ".",
 		}
 	}
-	nested, err = unflatten(flat, opts)
+	if opts.Safe {
+		nested, err = unflatten(flat, opts)
+		return
+	}
+
+	root := &TrieNode{}
+
+	for k, v := range flat {
+		if opts.Prefix != "" {
+			k = strings.TrimPrefix(k, opts.Prefix+opts.Delimiter)
+		}
+
+		// flatten again if value is map[string]interface
+		switch nested := v.(type) {
+		case map[string]interface{}:
+			nested, err := Flatten(v.(map[string]interface{}), opts)
+			if err != nil {
+				return nil, err
+			}
+			parts := strings.Split(k, opts.Delimiter)
+			for newK, newV := range nested {
+				root.insert(append(parts, strings.Split(newK, opts.Delimiter)...), newV)
+			}
+		default:
+			root.insert(strings.Split(k, opts.Delimiter), v)
+		}
+	}
+
+	nested = root.unflatten()
 	return
 }
 
