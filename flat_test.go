@@ -379,13 +379,29 @@ func TestUnflatten(t *testing.T) {
 		// },
 	}
 	for i, test := range tests {
-		got, err := Unflatten(test.flat, test.options)
+		opts := test.options
+		got, err := Unflatten(test.flat, opts)
 		if err != nil {
 			t.Errorf("%d: failed to unflatten: %v", i+1, err)
 		}
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
 		}
+
+		// test safe option
+		if opts == nil {
+			opts = &Options{Delimiter: "."}
+		}
+		opts.Safe = true
+
+		got, err = Unflatten(test.flat, opts)
+		if err != nil {
+			t.Errorf("%d: failed to unflatten with safe option: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch with safe option, got: %v want: %v", i+1, got, test.want)
+		}
+
 	}
 }
 
@@ -437,6 +453,7 @@ func TestFlattenPrefix(t *testing.T) {
 		if err != nil {
 			t.Errorf("%d: failed to unmarshal test: %v", i+1, err)
 		}
+
 		got, err := Flatten(given.(map[string]interface{}), test.options)
 		if err != nil {
 			t.Errorf("%d: failed to flatten: %v", i+1, err)
@@ -499,12 +516,92 @@ func TestUnflattenPrefix(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		got, err := Unflatten(test.flat, test.options)
+		opts := test.options
+		got, err := Unflatten(test.flat, opts)
 		if err != nil {
 			t.Errorf("%d: failed to unflatten: %v", i+1, err)
 		}
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.want)
+		}
+
+		opts.Safe = true
+		got, err = Unflatten(test.flat, opts)
+		if err != nil {
+			t.Errorf("%d: failed to unflatten with safe option: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%d: mismatch with safe option, got: %v want: %v", i+1, got, test.want)
+		}
+	}
+}
+
+type compSlice struct {
+	str  string
+	list []interface{}
+}
+
+func TestSlice(t *testing.T) {
+	tests := []struct {
+		options *Options
+		data    map[string]interface{}
+	}{
+		{nil, map[string]interface{}{"slice": []interface{}{}}},
+		{nil, map[string]interface{}{"slice": []interface{}{1, 2}}},
+		{nil, map[string]interface{}{"slice": []interface{}{"1", "2"}}},
+		{nil, map[string]interface{}{"k": "v", "slice": []interface{}{"1", "2"}}},
+		{nil, map[string]interface{}{"k": "v", "slice": []map[string]string{
+			{"k1": "v1"},
+			{"k2": "v2"},
+		}}},
+		{nil, map[string]interface{}{"k": "v", "slice": [][]string{
+			[]string{"k1", "v1"},
+			[]string{"k2", "v2"},
+		}}},
+		{nil, map[string]interface{}{"k": "v", "slice": []map[string][]string{
+			map[string][]string{"k1": []string{"v11", "v12"}},
+			map[string][]string{"k2": []string{"v21", "v22"}},
+		}}},
+		{nil, map[string]interface{}{"k": "v", "slice": []compSlice{
+			{"k1", []interface{}{1, 2}},
+			{"k2", []interface{}{3, 4}},
+		}}},
+		{nil, map[string]interface{}{"k": "v", "slice": [][]compSlice{
+			{{"k11", []interface{}{1, 2}}, {"k12", []interface{}{3, 4}}},
+			{{"k21", []interface{}{11, 12}}, {"k22", []interface{}{13, 14}}},
+		}}},
+		{nil, map[string]interface{}{"k": "v", "slice": []compSlice{
+			{"k1", []interface{}{
+				compSlice{"k11", []interface{}{1, 2}},
+				compSlice{"k12", []interface{}{3, 4}},
+			}},
+			{"k2", []interface{}{
+				compSlice{"k21", []interface{}{11, 12}},
+				compSlice{"k22", []interface{}{13, 14}},
+			}},
+		}}},
+		{&Options{Prefix: "json", Delimiter: "."}, map[string]interface{}{"k": "v", "slice": []compSlice{
+			{"k1", []interface{}{
+				compSlice{"k11", []interface{}{1, 2}},
+				compSlice{"k12", []interface{}{3, 4}},
+			}},
+			{"k2", []interface{}{
+				compSlice{"k21", []interface{}{11, 12}},
+				compSlice{"k22", []interface{}{13, 14}},
+			}},
+		}}},
+	}
+	for i, test := range tests {
+		f, err := Flatten(test.data, test.options)
+		if err != nil {
+			t.Errorf("%d: failed to flatten: %v", i+1, err)
+		}
+		got, err := Unflatten(f, test.options)
+		if err != nil {
+			t.Errorf("%d: failed to unflatten: %v", i+1, err)
+		}
+		if !reflect.DeepEqual(got, test.data) {
+			t.Errorf("%d: mismatch, got: %v want: %v", i+1, got, test.data)
 		}
 	}
 }
